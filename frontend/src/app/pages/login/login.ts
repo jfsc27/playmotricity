@@ -17,11 +17,26 @@ export class Login {
 
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly mostrarPassword = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     correo: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  protected rellenarCredenciales(tipo: 'docente' | 'padre'): void {
+    if (tipo === 'docente') {
+      this.form.setValue({
+        correo: 'docente@playmotricity.com',
+        password: 'Password123!',
+      });
+    } else {
+      this.form.setValue({
+        correo: 'padre@playmotricity.com',
+        password: 'Password123!',
+      });
+    }
+  }
 
   protected enviar(): void {
     if (this.form.invalid) {

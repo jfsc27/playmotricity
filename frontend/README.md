@@ -12,6 +12,16 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Cuentas de prueba (Datos de demostración en Neon DB)
+
+| Rol | Correo | Contraseña | Nombre / Detalle |
+| :--- | :--- | :--- | :--- |
+| **Docente** | `docente@playmotricity.com` | `Password123!` | Prof. Laura Gómez (*Jardín Infantil Pequeños Sabios*) |
+| **Padre / Acudiente** | `padre@playmotricity.com` | `Password123!` | Carlos Mendoza (*Parentesco: PADRE*) |
+
+> **Tip:** En la pantalla de login (`/login`) puedes hacer clic directamente en los botones de prueba para cargar las credenciales con 1 clic.
+
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
