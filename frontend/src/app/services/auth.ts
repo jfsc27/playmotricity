@@ -16,6 +16,22 @@ export interface AuthResponse {
   usuario: Usuario;
 }
 
+export interface RegistroDocenteDTO {
+  nombre: string;
+  correo: string;
+  password: string;
+  institucion: string;
+  grupoAsignado?: string;
+}
+
+export interface RegistroPadreDTO {
+  nombre: string;
+  correo: string;
+  password: string;
+  parentesco: string;
+  telefonoContacto?: string;
+}
+
 const TOKEN_KEY = 'playmotricity_token';
 const USER_KEY = 'playmotricity_usuario';
 
@@ -40,6 +56,18 @@ export class Auth {
   login(correo: string, password: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, { correo, password })
+      .pipe(tap((res) => this.guardarSesion(res)));
+  }
+
+  registrarDocente(datos: RegistroDocenteDTO): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register/docente`, datos)
+      .pipe(tap((res) => this.guardarSesion(res)));
+  }
+
+  registrarPadre(datos: RegistroPadreDTO): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register/padre`, datos)
       .pipe(tap((res) => this.guardarSesion(res)));
   }
 

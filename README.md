@@ -21,5 +21,5 @@ Para pruebas funcionales y evaluación de la interfaz y autenticación, se encue
 | **Docente** | `docente@playmotricity.com` | `Password123!` | Prof. Laura Gómez (*Jardín Infantil Pequeños Sabios - Transición A*) |
 | **Padre / Acudiente** | `padre@playmotricity.com` | `Password123!` | Carlos Mendoza (*Parentesco: PADRE*) |
 
-> **Nota:** La pantalla de inicio de sesión (`/login`) cuenta con botones de **acceso rápido con 1 clic** para autocompletar estas credenciales de forma inmediata.
+> **Nota:** La pantalla de inicio de sesión (`/login`) cuenta con botones de **acceso rápido con 1 clic** para autocompletar estas credenciales de forma inmediata, así como un enlace directo hacia la pantalla de registro (`/registro`) para crear nuevas cuentas con cualquiera de los dos roles (`Docente` o `Padre/Acudiente`).
 

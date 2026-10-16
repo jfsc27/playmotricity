@@ -501,6 +501,50 @@
   animation: spin 0.6s linear infinite;
 }
 
+/* ── Auth Switch (Registro <-> Login) ─────────────────────── */
+.auth-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--pm-surface);
+  border: 1px solid var(--pm-border);
+  border-radius: var(--pm-radius-md);
+  font-size: 0.9rem;
+}
+
+.auth-switch-text {
+  color: var(--pm-text-soft);
+  font-weight: 500;
+}
+
+.auth-switch-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--pm-orange-dark);
+  font-weight: 800;
+  font-family: var(--pm-font-heading);
+  text-decoration: none;
+  transition: all var(--pm-duration) var(--pm-ease);
+
+  svg {
+    transition: transform var(--pm-duration) var(--pm-ease);
+  }
+
+  &:hover {
+    color: var(--pm-orange);
+    text-decoration: underline;
+
+    svg {
+      transform: translateX(3px);
+    }
+  }
+}
+
 /* ── Footer ───────────────────────────────────────────────── */
 .form-footer {
   margin-top: 2.5rem;
