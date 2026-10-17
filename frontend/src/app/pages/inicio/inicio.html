@@ -38,7 +38,7 @@
       </li>
 
       @if (esDocente()) {
-        <li class="nav-item">
+        <li class="nav-item" routerLink="/perfiles">
           <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
           </svg>
@@ -59,7 +59,7 @@
       }
 
       @if (!esDocente()) {
-        <li class="nav-item">
+        <li class="nav-item" routerLink="/perfiles">
           <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
           </svg>
@@ -124,7 +124,7 @@
             </svg>
           </div>
           <div class="stat-data">
-            <span class="stat-value">0</span>
+            <span class="stat-value">{{ conteoPerfiles() }}</span>
             <span class="stat-label">Perfiles registrados</span>
           </div>
         </div>
@@ -191,16 +191,21 @@
             }
             <div class="welcome-actions">
               @if (esDocente()) {
-                <button class="btn btn--primary">
+                <button class="btn btn--primary" routerLink="/perfiles">
                   <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
                   </svg>
                   Registrar perfil infantil
                 </button>
-                <button class="btn btn--outline">Ver actividades</button>
+                <button class="btn btn--outline" routerLink="/perfiles">Ver perfiles</button>
               } @else {
-                <button class="btn btn--primary">Ver actividades</button>
-                <button class="btn btn--outline">Progreso</button>
+                <button class="btn btn--primary" routerLink="/perfiles">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                  </svg>
+                  Gestionar mi hijo/a
+                </button>
+                <button class="btn btn--outline" routerLink="/perfiles">Ver perfiles</button>
               }
             </div>
           </div>
@@ -211,7 +216,7 @@
           <h3 class="section-title">Accesos rápidos</h3>
           <div class="actions-list">
             @if (esDocente()) {
-              <button class="action-tile">
+              <button class="action-tile" routerLink="/perfiles">
                 <div class="tile-icon tile-icon--orange">👶</div>
                 <span>Nuevo perfil</span>
               </button>
@@ -228,17 +233,17 @@
                 <span>Resultados</span>
               </button>
             } @else {
-              <button class="action-tile">
-                <div class="tile-icon tile-icon--orange">🎯</div>
-                <span>Actividades</span>
+              <button class="action-tile" routerLink="/perfiles">
+                <div class="tile-icon tile-icon--orange">👶</div>
+                <span>Mi hijo/a</span>
               </button>
               <button class="action-tile">
                 <div class="tile-icon tile-icon--green">📈</div>
                 <span>Progreso</span>
               </button>
-              <button class="action-tile">
-                <div class="tile-icon tile-icon--blue">👶</div>
-                <span>Perfil</span>
+              <button class="action-tile" routerLink="/perfiles">
+                <div class="tile-icon tile-icon--blue">🎯</div>
+                <span>Perfiles</span>
               </button>
               <button class="action-tile">
                 <div class="tile-icon tile-icon--purple">🎮</div>

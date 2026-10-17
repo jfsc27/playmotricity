@@ -22,11 +22,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", e.getMessage()));
     }
 
+    @ExceptionHandler(EdadInvalidaException.class)
+    public ResponseEntity<Map<String, Object>> edadInvalida(EdadInvalidaException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "mensaje", e.getMessage(),
+                "edadCalculada", e.getEdadCalculada() != null ? e.getEdadCalculada() : 0,
+                "edadMinima", PerfilInfantilConsts.EDAD_MINIMA,
+                "edadMaxima", PerfilInfantilConsts.EDAD_MAXIMA
+        ));
+    }
+
+    @ExceptionHandler(PerfilNoEncontradoException.class)
+    public ResponseEntity<Map<String, String>> perfilNoEncontrado(PerfilNoEncontradoException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensaje", e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> validacion(MethodArgumentNotValidException e) {
         String mensaje = e.getBindingResult().getFieldErrors().stream()
                 .map(f -> f.getField() + ": " + f.getDefaultMessage())
                 .findFirst().orElse("Datos invalidos");
         return ResponseEntity.badRequest().body(Map.of("mensaje", mensaje));
+    }
+
+    private static class PerfilInfantilConsts {
+        private static final int EDAD_MINIMA = 2;
+        private static final int EDAD_MAXIMA = 6;
     }
 }

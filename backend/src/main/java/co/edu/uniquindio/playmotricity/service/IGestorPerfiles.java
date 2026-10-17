@@ -14,4 +14,14 @@ public interface IGestorPerfiles {
     List<PerfilInfantil> listarPerfiles();
 
     PerfilInfantil actualizarPerfil(UUID id, PerfilInfantil perfil);
+
+    PerfilInfantil crearPerfilParaUsuario(PerfilInfantil perfil, String correoUsuario);
+
+    List<PerfilInfantil> listarPerfilesDeUsuario(String correoUsuario);
+
+    PerfilInfantil obtenerPerfilDeUsuario(UUID id, String correoUsuario);
+
+    PerfilInfantil actualizarPerfilDeUsuario(UUID id, PerfilInfantil datosActualizados, String correoUsuario);
+
+    void eliminarPerfilDeUsuario(UUID id, String correoUsuario);
 }
