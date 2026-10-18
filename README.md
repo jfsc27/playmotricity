@@ -95,3 +95,19 @@ En la carpeta `postman/`:
 1. Ejecuta `datos-prueba-resultados.sql` en la base de datos (crea un niño, un minijuego y una asignación de prueba para `docente@playmotricity.com`; se puede repetir para reiniciar la prueba).
 2. En Postman importa `PlayMotricity-Resultados.postman_collection.json` y `PlayMotricity-Local.postman_environment.json`, selecciona el entorno **PlayMotricity Local**.
 3. Con el backend en marcha, ejecuta la colección completa en orden (*Run collection*).
+
+## Seguimiento y reportes (`/api/seguimiento`)
+
+Accesible para `DOCENTE` y `PADRE`, solo sobre perfiles infantiles a su cargo (si no, `404`).
+
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/api/seguimiento/perfiles/{id}/actividades-completadas` | Actividades completadas con su resultado. |
+| `GET` | `/api/seguimiento/perfiles/{id}/resultados` | Todos los resultados del perfil (incluye intentos no completados). |
+| `GET` | `/api/seguimiento/perfiles/{id}/progreso` | Progreso calculado: conteos por estado, % de avance, promedios de puntaje, precisión y tiempo, nivel y desglose por tipo de actividad. |
+| `POST` | `/api/seguimiento/perfiles/{id}/reportes` | Genera y guarda un `ReporteProgreso` con el progreso actual. |
+| `GET` | `/api/seguimiento/perfiles/{id}/reportes` | Historial de reportes generados. |
+
+- Los promedios se calculan **solo con actividades completadas**, redondeados a 2 decimales; si no hay ninguna, valen `null`.
+- Nivel según el promedio de puntaje: `SIN_DATOS`, `INICIAL` (< 60), `EN_DESARROLLO` (< 80) o `AVANZADO` (≥ 80).
+- En el frontend, la pantalla `/progreso` se abre desde **Reportes** (docente) o **Progreso** (padre) en el menú del panel.

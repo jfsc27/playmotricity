@@ -1,0 +1,241 @@
+<div class="dashboard">
+
+  <!-- ═══════════ Sidebar ═══════════ -->
+  <nav class="sidebar" [class.sidebar--collapsed]="sidebarCollapsed()">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="20" r="8" fill="#F28B30" opacity="0.9"/>
+            <circle cx="15" cy="34" r="5" fill="#4CAF7D" opacity="0.8"/>
+            <circle cx="33" cy="34" r="5" fill="#4A90D9" opacity="0.8"/>
+          </svg>
+        </div>
+        @if (!sidebarCollapsed()) { <span class="brand-text">PlayMotricity</span> }
+      </div>
+      <button class="sidebar-toggle" (click)="sidebarCollapsed.set(!sidebarCollapsed())" aria-label="Colapsar menú lateral">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+          <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="nav-item" routerLink="/inicio">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+        </svg>
+        @if (!sidebarCollapsed()) { <span>Panel principal</span> }
+      </li>
+      <li class="nav-item" routerLink="/perfiles">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        @if (!sidebarCollapsed()) { <span>{{ esDocente() ? 'Perfiles infantiles' : 'Mi hijo/a' }}</span> }
+      </li>
+      <li class="nav-item nav-item--active">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+        </svg>
+        @if (!sidebarCollapsed()) { <span>{{ esDocente() ? 'Reportes' : 'Progreso' }}</span> }
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="nav-item nav-item--logout" (click)="salir()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+          <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+        </svg>
+        @if (!sidebarCollapsed()) { <span>Cerrar sesión</span> }
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════ Contenido ═══════════ -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">{{ esDocente() ? 'Seguimiento y reportes' : 'Progreso de tu hijo/a' }}</h1>
+        <p class="page-subtitle">Resultados, promedios y avance de cada niño en sus actividades</p>
+      </div>
+      <div class="topbar-right">
+        <div class="user-badge">
+          <div class="user-avatar" [class]="'user-avatar--' + (auth.rol()?.toLowerCase() ?? 'docente')">{{ iniciales() }}</div>
+          <div class="user-info">
+            <span class="user-name">{{ auth.usuario()?.nombre }}</span>
+            <span class="user-role">{{ rolLabel() }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-body">
+
+      @if (perfiles().length === 0 && !cargando()) {
+        <div class="pg-card pg-vacio">
+          <span class="pg-vacio__emoji">👶</span>
+          <h2>Aún no hay perfiles infantiles</h2>
+          <p>Registra un perfil para empezar a ver su progreso.</p>
+          <button class="btn btn--primary" routerLink="/perfiles">Ir a perfiles</button>
+        </div>
+      } @else {
+
+        <!-- Selector de niño -->
+        <div class="pg-selector" role="tablist" aria-label="Seleccionar perfil infantil">
+          @for (p of perfiles(); track p.id) {
+            <button type="button" class="pg-chip" role="tab"
+                    [class.pg-chip--activo]="p.id === perfilId()"
+                    [attr.aria-selected]="p.id === perfilId()"
+                    (click)="seleccionar(p.id)">
+              {{ p.nombre }} <small>{{ p.edad }} años</small>
+            </button>
+          }
+        </div>
+
+        @if (error()) { <p class="pg-alerta pg-alerta--error" role="alert">{{ error() }}</p> }
+        @if (aviso()) { <p class="pg-alerta pg-alerta--ok" role="status">{{ aviso() }}</p> }
+
+        @if (cargando()) {
+          <p class="pg-cargando">Cargando progreso…</p>
+        } @else if (progreso(); as pr) {
+
+          <!-- SUB-38.3 / 38.4 / 38.5 -->
+          <div class="stats-grid">
+            <div class="stat-card stat-card--orange">
+              <div class="stat-icon">✅</div>
+              <div class="stat-data">
+                <span class="stat-value">{{ pr.completadas }}<small class="pg-de"> / {{ pr.totalAsignadas }}</small></span>
+                <span class="stat-label">Actividades completadas</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card--green">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-data">
+                <span class="stat-value">{{ pr.promedioPuntaje === null ? '—' : (pr.promedioPuntaje | number: '1.0-1') }}</span>
+                <span class="stat-label">Promedio de puntaje</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card--blue">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-data">
+                <span class="stat-value">{{ pr.promedioPrecision === null ? '—' : (pr.promedioPrecision | number: '1.0-1') + '%' }}</span>
+                <span class="stat-label">Promedio de precisión</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card--purple">
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-data">
+                <span class="stat-value pg-tiempo">{{ formatearTiempo(pr.tiempoPromedioEjecucionSeg) }}</span>
+                <span class="stat-label">Tiempo promedio</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-38.6 -->
+          <div class="pg-grid">
+            <div class="pg-card">
+              <div class="pg-card__cabecera">
+                <h3 class="section-title">Avance general</h3>
+                <span class="pg-nivel" [class]="'pg-nivel pg-nivel--' + pr.nivel.toLowerCase()">{{ nombreNivel(pr.nivel) }}</span>
+              </div>
+              <div class="pg-barra" role="progressbar" [attr.aria-valuenow]="pr.porcentajeAvance" aria-valuemin="0" aria-valuemax="100">
+                <div class="pg-barra__relleno" [style.width.%]="pr.porcentajeAvance"></div>
+              </div>
+              <p class="pg-avance"><strong>{{ pr.porcentajeAvance | number: '1.0-0' }}%</strong> de las actividades asignadas completadas</p>
+              <ul class="pg-estados">
+                <li><span class="pg-punto pg-punto--completada"></span>{{ plural(pr.completadas, 'completada', 'completadas') }}</li>
+                <li><span class="pg-punto pg-punto--progreso"></span>{{ pr.enProgreso }} en progreso</li>
+                <li><span class="pg-punto pg-punto--pendiente"></span>{{ plural(pr.pendientes, 'pendiente', 'pendientes') }}</li>
+              </ul>
+              <p class="pg-mensaje">{{ pr.mensaje }}</p>
+              @if (pr.ultimaActividad) {
+                <p class="pg-nota">Última actividad completada: {{ pr.ultimaActividad | date: 'd MMM y, h:mm a' }}</p>
+              }
+            </div>
+
+            <div class="pg-card">
+              <h3 class="section-title">Por tipo de actividad</h3>
+              @for (t of pr.progresoPorTipo; track t.tipoActividad) {
+                <div class="pg-tipo">
+                  <div class="pg-tipo__fila">
+                    <span>{{ nombreTipo(t.tipoActividad) }}</span>
+                    <span class="pg-nota">{{ plural(t.completadas, 'completada', 'completadas') }} · {{ t.promedioPuntaje === null ? 'sin puntaje' : (t.promedioPuntaje | number: '1.0-1') + ' pts' }}</span>
+                  </div>
+                  <div class="pg-barra pg-barra--fina">
+                    <div class="pg-barra__relleno" [style.width.%]="t.promedioPuntaje ?? 0"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- SUB-38.1 / 38.2 -->
+          <div class="pg-card">
+            <div class="pg-card__cabecera">
+              <h3 class="section-title">Actividades y resultados</h3>
+              <div class="pg-pestanas" role="tablist">
+                <button type="button" role="tab" [class.pg-pestana--activa]="pestana() === 'completadas'" [attr.aria-selected]="pestana() === 'completadas'" (click)="pestana.set('completadas')">
+                  Completadas ({{ completadas().length }})
+                </button>
+                <button type="button" role="tab" [class.pg-pestana--activa]="pestana() === 'resultados'" [attr.aria-selected]="pestana() === 'resultados'" (click)="pestana.set('resultados')">
+                  Todos los resultados ({{ resultados().length }})
+                </button>
+              </div>
+            </div>
+
+            @if (listaVisible().length === 0) {
+              <p class="pg-nota">{{ pestana() === 'completadas' ? 'Todavía no hay actividades completadas.' : 'Todavía no hay resultados registrados.' }}</p>
+            } @else {
+              <div class="pg-tabla-contenedor">
+                <table class="pg-tabla">
+                  <thead>
+                    <tr><th>Actividad</th><th>Tipo</th><th>Estado</th><th>Puntaje</th><th>Precisión</th><th>Tiempo</th><th>Fecha</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (r of listaVisible(); track r.resultadoId) {
+                      <tr>
+                        <td class="pg-tabla__nombre">{{ r.actividadNombre }}</td>
+                        <td>{{ nombreTipo(r.tipoActividad) }}</td>
+                        <td><span class="pg-estado" [class]="'pg-estado pg-estado--' + r.estadoAsignacion.toLowerCase()">{{ nombreEstado(r.estadoAsignacion) }}</span></td>
+                        <td>{{ r.puntaje | number: '1.0-1' }}</td>
+                        <td>{{ r.precision | number: '1.0-1' }}%</td>
+                        <td>{{ formatearTiempo(r.tiempoEjecucionSeg) }}</td>
+                        <td>{{ r.fechaRealizacion | date: 'd MMM y' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+
+          <!-- Reportes guardados (SUB-38.6) -->
+          <div class="pg-card">
+            <div class="pg-card__cabecera">
+              <h3 class="section-title">Reportes de progreso</h3>
+              <button class="btn btn--primary" type="button" (click)="generarReporte()" [disabled]="generando()">
+                {{ generando() ? 'Generando…' : 'Generar reporte' }}
+              </button>
+            </div>
+            @if (reportes().length === 0) {
+              <p class="pg-nota">Aún no se han generado reportes. Un reporte guarda una foto del progreso actual.</p>
+            } @else {
+              <ul class="pg-reportes">
+                @for (rep of reportes(); track rep.id) {
+                  <li>
+                    <span class="pg-reportes__fecha">{{ rep.fechaGeneracion | date: 'd MMM y, h:mm a' }}</span>
+                    <span>{{ plural(rep.totalActividadesCompletadas, 'completada', 'completadas') }}</span>
+                    <span>{{ rep.promedioPuntaje | number: '1.0-1' }} pts</span>
+                    <span>{{ rep.promedioPrecision | number: '1.0-1' }}% precisión</span>
+                    <span>{{ formatearTiempo(rep.tiempoPromedioEjecucionSeg) }}</span>
+                    <span class="pg-nota">por {{ rep.generadoPor }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      }
+    </section>
+  </main>
+</div>

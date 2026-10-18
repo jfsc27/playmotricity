@@ -10,4 +10,6 @@ public interface ReporteProgresoRepository
         extends JpaRepository<ReporteProgreso, UUID> {
 
     List<ReporteProgreso> findByPerfilId(UUID perfilId);
+
+    List<ReporteProgreso> findByPerfilIdOrderByFechaGeneracionDesc(UUID perfilId);
 }

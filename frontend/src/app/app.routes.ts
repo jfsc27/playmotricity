@@ -24,6 +24,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/perfiles/perfiles').then((m) => m.Perfiles),
   },
   {
+    path: 'progreso',
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
+    loadComponent: () => import('./pages/progreso/progreso').then((m) => m.Progreso),
+  },
+  {
     path: 'acceso-denegado',
     canActivate: [authGuard],
     loadComponent: () =>
