@@ -1,23 +1,26 @@
 {
   "info": {
-    "name": "PlayMotricity - Regla de resultados",
-    "description": "Valida SUB-32 (implementar regla de resultados). Antes de ejecutar: correr postman/datos-prueba-resultados.sql en la base de datos y tener el backend en marcha. Ejecutar la colección completa en orden.",
+    "name": "PlayMotricity - API Completa",
+    "description": "Colección completa de pruebas para PlayMotricity: Autenticación JWT, Perfiles Infantiles (validación de regla de edad 2-6 años), Actividades motrices, Asignaciones de actividades a perfiles, Registro y validación de Resultados, y Manejo exhaustivo de Errores (400, 401, 403, 404, 409).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "0. Autenticación",
+      "name": "0. Autenticación y Seguridad",
       "item": [
         {
-          "name": "Login docente",
+          "name": "Login docente (Obtener Token JWT)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.environment.set(\"tokenDocente\", pm.response.json().token);"
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Retorna token JWT\", () => pm.expect(res.token).to.be.a('string').and.not.empty);",
+                  "pm.test(\"Rol es DOCENTE\", () => pm.expect(res.usuario.rol).to.eql('DOCENTE'));",
+                  "pm.environment.set(\"tokenDocente\", res.token);"
                 ]
               }
             }
@@ -32,13 +35,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             },
             "body": {
               "mode": "raw",
@@ -47,15 +45,18 @@
           }
         },
         {
-          "name": "Login padre",
+          "name": "Login padre / acudiente (Obtener Token JWT)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.environment.set(\"tokenPadre\", pm.response.json().token);"
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Retorna token JWT\", () => pm.expect(res.token).to.be.a('string').and.not.empty);",
+                  "pm.test(\"Rol es PADRE\", () => pm.expect(res.usuario.rol).to.eql('PADRE'));",
+                  "pm.environment.set(\"tokenPadre\", res.token);"
                 ]
               }
             }
@@ -70,36 +71,502 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"padre@playmotricity.com\",\n  \"password\": \"Password123!\"\n}"
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "1. Flujo correcto (SUB-32.1, 32.2, 32.3)",
-      "item": [
+        },
         {
-          "name": "Consultar asignación (PENDIENTE)",
+          "name": "Consultar Resumen Perfil Docente (/api/docente/resumen)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Estado inicial PENDIENTE (ejecuta antes datos-prueba-resultados.sql)\", () => pm.expect(pm.response.json().estado).to.eql(\"PENDIENTE\"));",
-                  "pm.test(\"Sin resultado todavía\", () => pm.expect(pm.response.json().resultado).to.be.null);"
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Contiene datos de docente\", () => {",
+                  "  pm.expect(res.nombre).to.be.a('string');",
+                  "  pm.expect(res.correo).to.eql('docente@playmotricity.com');",
+                  "  pm.expect(res.institucion).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/docente/resumen",
+              "host": ["{{baseUrl}}"],
+              "path": ["docente", "resumen"]
+            }
+          }
+        },
+        {
+          "name": "Consultar Resumen Perfil Padre (/api/padre/resumen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Contiene datos de acudiente\", () => {",
+                  "  pm.expect(res.nombre).to.be.a('string');",
+                  "  pm.expect(res.correo).to.eql('padre@playmotricity.com');",
+                  "  pm.expect(res.parentesco).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPadre}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/padre/resumen",
+              "host": ["{{baseUrl}}"],
+              "path": ["padre", "resumen"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Módulo Perfiles Infantiles",
+      "item": [
+        {
+          "name": "Crear perfil infantil válido (3 años)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Perfil creado con ID y edad calculada\", () => {",
+                  "  pm.expect(res.id).to.be.a('string');",
+                  "  pm.expect(res.edad).to.be.at.least(2).and.at.most(6);",
+                  "  pm.expect(res.nombre).to.eql('Mateo Gómez');",
+                  "});",
+                  "pm.environment.set(\"perfilId\", res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/perfiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mateo Gómez\",\n  \"fechaNacimiento\": \"2023-04-10\",\n  \"grupoGrado\": \"Párvulos A\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar perfiles del usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Retorna arreglo de perfiles\", () => pm.expect(res).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/perfiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles"]
+            }
+          }
+        },
+        {
+          "name": "Obtener perfil por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Mismo ID\", () => pm.expect(res.id).to.eql(pm.environment.get(\"perfilId\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/perfiles/{{perfilId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles", "{{perfilId}}"]
+            }
+          }
+        },
+        {
+          "name": "400 - Crear perfil con edad menor a 2 años",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje de error de regla de edad\", () => {",
+                  "  pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/perfiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Bebé Muy Pequeño\",\n  \"fechaNacimiento\": \"2025-11-01\",\n  \"grupoGrado\": \"Cuna\"\n}"
+            }
+          }
+        },
+        {
+          "name": "400 - Crear perfil con edad mayor a 6 años",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje de error de regla de edad\", () => {",
+                  "  pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/perfiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Niño Mayor\",\n  \"fechaNacimiento\": \"2017-01-01\",\n  \"grupoGrado\": \"Primaria\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Módulo Actividades",
+      "item": [
+        {
+          "name": "Listar todas las actividades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Existen actividades cargadas\", () => pm.expect(res.length).to.be.at.least(1));",
+                  "pm.environment.set(\"actividadId\", res[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades"]
+            }
+          }
+        },
+        {
+          "name": "Filtrar actividades por edad (3 años)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "res.forEach(a => {",
+                  "  pm.test(`Actividad ${a.nombre} adecuada para edad 3`, () => {",
+                  "    pm.expect(a.edadMinima).to.be.at.most(3);",
+                  "    pm.expect(a.edadMaxima).to.be.at.least(3);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades?edad=3",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades"],
+              "query": [
+                {
+                  "key": "edad",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filtrar actividades por tipo (MOTRICIDAD_FINA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "res.forEach(a => {",
+                  "  pm.test(`Tipo es MOTRICIDAD_FINA`, () => pm.expect(a.tipoActividad).to.eql('MOTRICIDAD_FINA'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades?tipo=MOTRICIDAD_FINA",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades"],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "MOTRICIDAD_FINA"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener actividad por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Contiene nombre e instrucciones\", () => {",
+                  "  pm.expect(res.nombre).to.be.a('string');",
+                  "  pm.expect(res.instrucciones).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades/{{actividadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades", "{{actividadId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Módulo Asignaciones",
+      "item": [
+        {
+          "name": "Asignar actividad a un perfil infantil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Asignación en estado PENDIENTE\", () => pm.expect(res.estado).to.eql('PENDIENTE'));",
+                  "pm.environment.set(\"asignacionId\", res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades/asignar",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades", "asignar"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfilId\": \"{{perfilId}}\",\n  \"actividadId\": \"{{actividadId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar asignaciones de un perfil infantil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Retorna asignaciones del niño\", () => pm.expect(res).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenDocente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actividades/asignaciones/{{perfilId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["actividades", "asignaciones", "{{perfilId}}"]
+            }
+          }
+        },
+        {
+          "name": "Consultar detalle de asignación por ID (/api/asignaciones/{id})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test(\"Tiene id coincidente\", () => pm.expect(res.id).to.eql(pm.environment.get(\"asignacionId\")));"
                 ]
               }
             }
@@ -114,28 +581,27 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}"]
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "4. Módulo Registro de Resultados",
+      "item": [
         {
-          "name": "Registrar intento NO completado → EN_PROGRESO",
+          "name": "Registrar resultado en progreso (completada: false)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));",
                   "const r = pm.response.json();",
-                  "pm.test(\"Asignación pasa a EN_PROGRESO\", () => pm.expect(r.estadoAsignacion).to.eql(\"EN_PROGRESO\"));",
-                  "pm.test(\"Guarda los datos enviados\", () => { pm.expect(r.puntaje).to.eql(40); pm.expect(r.completada).to.eql(false); });",
+                  "pm.test(\"Estado asignación pasa a EN_PROGRESO\", () => pm.expect(r.estadoAsignacion).to.eql('EN_PROGRESO'));",
                   "pm.environment.set(\"resultadoId\", r.id);"
                 ]
               }
@@ -155,34 +621,27 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}", "resultados"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntaje\": 40,\n  \"precision\": 55.5,\n  \"tiempoEjecucionSeg\": 60,\n  \"completada\": false\n}"
+              "raw": "{\n  \"puntaje\": 45,\n  \"precision\": 60,\n  \"tiempoEjecucionSeg\": 45,\n  \"completada\": false\n}"
             }
           }
         },
         {
-          "name": "Registrar intento completado → COMPLETADA",
+          "name": "Registrar resultado final con éxito (completada: true)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));",
                   "const r = pm.response.json();",
-                  "pm.test(\"Asignación pasa a COMPLETADA\", () => pm.expect(r.estadoAsignacion).to.eql(\"COMPLETADA\"));",
-                  "pm.test(\"Reemplaza el intento anterior (mismo resultado)\", () => pm.expect(r.id).to.eql(pm.environment.get(\"resultadoId\")));",
-                  "pm.test(\"Guarda puntaje, precisión y tiempo\", () => { pm.expect(r.puntaje).to.eql(85.5); pm.expect(r.precision).to.eql(90); pm.expect(r.tiempoEjecucionSeg).to.eql(120); });"
+                  "pm.test(\"Estado asignación pasa a COMPLETADA\", () => pm.expect(r.estadoAsignacion).to.eql('COMPLETADA'));",
+                  "pm.test(\"Puntaje registrado\", () => pm.expect(r.puntaje).to.eql(95));"
                 ]
               }
             }
@@ -201,33 +660,27 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}", "resultados"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntaje\": 85.5,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 120,\n  \"completada\": true\n}"
+              "raw": "{\n  \"puntaje\": 95,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 85,\n  \"completada\": true\n}"
             }
           }
         },
         {
-          "name": "Consultar asignación (COMPLETADA con resultado)",
+          "name": "Consultar asignación ya completada con resultado",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
                   "const a = pm.response.json();",
-                  "pm.test(\"Estado COMPLETADA en la base de datos\", () => pm.expect(a.estado).to.eql(\"COMPLETADA\"));",
-                  "pm.test(\"Incluye el resultado registrado\", () => pm.expect(a.resultado.puntaje).to.eql(85.5));"
+                  "pm.test(\"Estado COMPLETADA en BD\", () => pm.expect(a.estado).to.eql('COMPLETADA'));",
+                  "pm.test(\"Contiene objeto resultado\", () => pm.expect(a.resultado.puntaje).to.eql(95));"
                 ]
               }
             }
@@ -242,31 +695,26 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}"]
             }
           }
         }
       ]
     },
     {
-      "name": "2. Manejo de errores (SUB-32.4)",
+      "name": "5. Manejo de Errores y Validaciones",
       "item": [
         {
-          "name": "409 - Asignación ya completada",
+          "name": "409 - Asignación ya completada no permite nuevos resultados",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                  "pm.test(\"Status 409 Conflict\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Mensaje de error presente\", () => pm.expect(pm.response.json().mensaje).to.be.a('string'));"
                 ]
               }
             }
@@ -285,14 +733,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}", "resultados"]
             },
             "body": {
               "mode": "raw",
@@ -308,8 +750,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                  "pm.test(\"Status 404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Mensaje descriptivo\", () => pm.expect(pm.response.json().mensaje).to.be.a('string'));"
                 ]
               }
             }
@@ -328,31 +770,25 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/00000000-0000-0000-0000-000000000000/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "00000000-0000-0000-0000-000000000000",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "00000000-0000-0000-0000-000000000000", "resultados"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntaje\": 85.5,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 120,\n  \"completada\": true\n}"
+              "raw": "{\n  \"puntaje\": 80,\n  \"precision\": 85,\n  \"tiempoEjecucionSeg\": 90,\n  \"completada\": true\n}"
             }
           }
         },
         {
-          "name": "403 - Asignación de un niño que no está a cargo",
+          "name": "403 - Intento de acceso a recurso de otro usuario",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                  "pm.test(\"Status 403 Forbidden\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Mensaje de rechazo de seguridad\", () => pm.expect(pm.response.json().mensaje).to.be.a('string'));"
                 ]
               }
             }
@@ -371,30 +807,24 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}", "resultados"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntaje\": 85.5,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 120,\n  \"completada\": true\n}"
+              "raw": "{\n  \"puntaje\": 80,\n  \"precision\": 85,\n  \"tiempoEjecucionSeg\": 90,\n  \"completada\": true\n}"
             }
           }
         },
         {
-          "name": "400 - Puntaje fuera de rango",
+          "name": "400 - Puntaje superior a 100",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));",
                   "pm.test(\"Mensaje de validación\", () => pm.expect(pm.response.json().mensaje).to.include(\"puntaje\"));"
                 ]
               }
@@ -414,14 +844,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["asignaciones", "{{asignacionId}}", "resultados"]
             },
             "body": {
               "mode": "raw",
@@ -430,212 +854,25 @@
           }
         },
         {
-          "name": "400 - Falta el campo completada",
+          "name": "401 - Petición sin token de autenticación",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                  "pm.test(\"Status 401 Unauthorized\", () => pm.response.to.have.status(401));"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{tokenDocente}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"puntaje\": 50,\n  \"precision\": 50,\n  \"tiempoEjecucionSeg\": 30\n}"
-            }
-          }
-        },
-        {
-          "name": "400 - Tiempo de ejecución en 0",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{tokenDocente}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"puntaje\": 50,\n  \"precision\": 50,\n  \"tiempoEjecucionSeg\": 0,\n  \"completada\": true\n}"
-            }
-          }
-        },
-        {
-          "name": "400 - JSON mal formado",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{tokenDocente}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"puntaje\": \"mucho\""
-            }
-          }
-        },
-        {
-          "name": "400 - ID de asignación inválido",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Responde con un mensaje de error\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{tokenDocente}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/asignaciones/no-es-un-uuid/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "no-es-un-uuid",
-                "resultados"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"puntaje\": 85.5,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 120,\n  \"completada\": true\n}"
-            }
-          }
-        },
-        {
-          "name": "401 - Sin token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/asignaciones/{{asignacionId}}/resultados",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "asignaciones",
-                "{{asignacionId}}",
-                "resultados"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"puntaje\": 85.5,\n  \"precision\": 90,\n  \"tiempoEjecucionSeg\": 120,\n  \"completada\": true\n}"
+              "raw": "{{baseUrl}}/perfiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["perfiles"]
             }
           }
         }

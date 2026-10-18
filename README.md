@@ -89,12 +89,22 @@ Reglas:
 4. El estado pasa a `COMPLETADA` si `completada` es `true`, o a `EN_PROGRESO` si es `false`.
 5. Datos inválidos, JSON mal formado o ID inválido → `400` con `{"mensaje": "..."}`.
 
-### Validar con Postman
+### Colección Postman Completa (`postman/`)
 
-En la carpeta `postman/`:
-1. Ejecuta `datos-prueba-resultados.sql` en la base de datos (crea un niño, un minijuego y una asignación de prueba para `docente@playmotricity.com`; se puede repetir para reiniciar la prueba).
-2. En Postman importa `PlayMotricity-Resultados.postman_collection.json` y `PlayMotricity-Local.postman_environment.json`, selecciona el entorno **PlayMotricity Local**.
-3. Con el backend en marcha, ejecuta la colección completa en orden (*Run collection*).
+Se incluye la colección actualizada y exportada con la totalidad de los módulos del backend de PlayMotricity:
+1. `PlayMotricity-Local.postman_environment.json`: Entorno con variable `baseUrl` (`http://localhost:8080/api`), tokens dinámicos (`tokenDocente`, `tokenPadre`) y variables de prueba (`perfilId`, `actividadId`, `asignacionId`, `resultadoId`).
+2. `PlayMotricity-Resultados.postman_collection.json`: Colección completa organizada en carpetas estructuradas:
+   - **0. Autenticación y Seguridad:** Login docente y padre (extracción automática de JWT a variables de entorno) y consulta de perfil/resumen (`/api/docente/resumen`, `/api/padre/resumen`).
+   - **1. Módulo Perfiles Infantiles:** Creación de perfiles, listado, consulta por ID y validación de regla de edad (2 a 6 años, pruebas de error 400).
+   - **2. Módulo Actividades:** Listado completo, filtrado por edad (`?edad=3`), filtrado por tipo (`?tipo=MOTRICIDAD_FINA`) y detalle por UUID.
+   - **3. Módulo Asignaciones:** Asignación de actividad a niño, listado de asignaciones por perfil infantil y consulta de estado de asignación.
+   - **4. Módulo Registro de Resultados:** Registro de intento en progreso (`completada: false` → `EN_PROGRESO`), intento completado (`completada: true` → `COMPLETADA`) y persistencia del resultado en Neon DB.
+   - **5. Manejo de Errores y Validaciones:** Casos documentados de `409 Conflict` (actividad ya completada), `404 Not Found` (recurso inexistente), `403 Forbidden` (acceso a niño ajeno), `400 Bad Request` (puntaje > 100 o tiempo 0) y `401 Unauthorized` (sin token).
+
+Para ejecutar:
+1. Importa en Postman ambos archivos ubicados en `playmotricity/postman/`.
+2. Selecciona el entorno **PlayMotricity Local**.
+3. Ejecuta la colección completa con el runner de Postman (*Run collection*). Todas las pruebas y aserciones se validarán de forma automatizada.
 
 ## Seguimiento y reportes (`/api/seguimiento`)
 
