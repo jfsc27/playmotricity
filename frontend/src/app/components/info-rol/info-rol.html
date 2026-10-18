@@ -1,0 +1,21 @@
+<section class="info-rol">
+  <h3 class="info-rol__titulo">Mi información</h3>
+
+  @if (docente(); as d) {
+    <dl class="info-rol__datos">
+      <div><dt>Institución</dt><dd>{{ d.institucion }}</dd></div>
+      <div><dt>Grupo asignado</dt><dd>{{ d.grupoAsignado || 'Sin grupo asignado' }}</dd></div>
+      <div><dt>Estudiantes a cargo</dt><dd>{{ d.perfilesACargo }}</dd></div>
+    </dl>
+  } @else if (padre(); as p) {
+    <dl class="info-rol__datos">
+      <div><dt>Parentesco</dt><dd>{{ p.parentesco }}</dd></div>
+      <div><dt>Teléfono de contacto</dt><dd>{{ p.telefonoContacto || 'No registrado' }}</dd></div>
+      <div><dt>Niños a cargo</dt><dd>{{ p.perfilesACargo }}</dd></div>
+    </dl>
+  } @else if (error()) {
+    <p class="info-rol__vacio">No se pudo cargar tu información.</p>
+  } @else {
+    <p class="info-rol__vacio">Cargando…</p>
+  }
+</section>

@@ -22,6 +22,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         auth.logout();
         router.navigate(['/login']);
       }
+      // Autenticado pero sin el rol necesario para ese recurso.
+      if (err.status === 403 && token) {
+        router.navigate(['/acceso-denegado']);
+      }
       return throwError(() => err);
     })
   );

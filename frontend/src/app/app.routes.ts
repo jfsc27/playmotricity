@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, invitadoGuard } from './guards/auth.guard';
+import { authGuard, invitadoGuard, rolGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -19,8 +19,15 @@ export const routes: Routes = [
   },
   {
     path: 'perfiles',
-    canActivate: [authGuard],
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
     loadComponent: () => import('./pages/perfiles/perfiles').then((m) => m.Perfiles),
+  },
+  {
+    path: 'acceso-denegado',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/acceso-denegado/acceso-denegado').then((m) => m.AccesoDenegado),
   },
   { path: '', pathMatch: 'full', redirectTo: 'inicio' },
   { path: '**', redirectTo: 'inicio' },

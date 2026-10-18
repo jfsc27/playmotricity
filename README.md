@@ -52,3 +52,20 @@ Permite a los usuarios autenticados (docentes y padres) gestionar los perfiles d
   - Confirmación accesible para eliminación.
 
 
+
+## Autorización por rol
+
+Roles: `DOCENTE` y `PADRE` (enum `Rol` en el backend, tipo `Rol` en `services/auth.ts`).
+
+| Ruta del backend | Quién puede acceder |
+| :--- | :--- |
+| `/api/health`, `/api/auth/login`, `/api/auth/register/**` | Público |
+| `/api/docente/**` (ej. `GET /api/docente/resumen`) | Solo `DOCENTE` |
+| `/api/padre/**` (ej. `GET /api/padre/resumen`) | Solo `PADRE` |
+| `/api/perfiles/**` | `DOCENTE` y `PADRE` |
+| Cualquier otra ruta `/api/**` | Cualquier usuario autenticado |
+
+Sin token → `401`. Con token pero sin el rol necesario → `403` con `{"mensaje": "No tienes permisos para acceder a este recurso"}`.
+
+Para un endpoint nuevo exclusivo de un rol, ponlo bajo `/api/docente/...` o `/api/padre/...` (o usa `@PreAuthorize("hasRole('DOCENTE')")`).
+En Angular, protege la ruta con `canActivate: [authGuard, rolGuard]` y `data: { roles: ['DOCENTE'] }`; si el rol no coincide se redirige a `/acceso-denegado`.

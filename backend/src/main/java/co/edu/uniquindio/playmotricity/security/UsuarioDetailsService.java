@@ -1,6 +1,5 @@
 package co.edu.uniquindio.playmotricity.security;
 
-import co.edu.uniquindio.playmotricity.entity.Docente;
 import co.edu.uniquindio.playmotricity.entity.Usuario;
 import co.edu.uniquindio.playmotricity.repository.UsuarioRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +21,7 @@ public class UsuarioDetailsService implements UserDetailsService {
     }
 
     public static String rolDe(Usuario usuario) {
-        return usuario instanceof Docente ? "DOCENTE" : "PADRE";
+        return Rol.de(usuario).name();
     }
 
     @Override
@@ -32,6 +31,6 @@ public class UsuarioDetailsService implements UserDetailsService {
         return new User(
                 usuario.getCorreo(),
                 usuario.getPasswordHash(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + rolDe(usuario))));
+                List.of(new SimpleGrantedAuthority(Rol.de(usuario).authority())));
     }
 }

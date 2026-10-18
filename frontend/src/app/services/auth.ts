@@ -2,11 +2,16 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
+/** Roles de la plataforma; deben coincidir con el enum Rol del backend. */
+export type Rol = 'DOCENTE' | 'PADRE';
+
+export const ROLES: readonly Rol[] = ['DOCENTE', 'PADRE'];
+
 export interface Usuario {
   id: string;
   nombre: string;
   correo: string;
-  rol: 'DOCENTE' | 'PADRE';
+  rol: Rol;
 }
 
 export interface AuthResponse {
@@ -48,6 +53,13 @@ export class Auth {
 
   readonly usuario = this._usuario.asReadonly();
   readonly autenticado = computed(() => this._token() !== null);
+  readonly rol = computed<Rol | null>(() => this._usuario()?.rol ?? null);
+
+  /** true si el usuario en sesion tiene alguno de los roles indicados. */
+  tieneRol(...roles: Rol[]): boolean {
+    const rol = this.rol();
+    return rol !== null && roles.includes(rol);
+  }
 
   get token(): string | null {
     return this._token();

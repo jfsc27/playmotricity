@@ -37,4 +37,17 @@ describe('Auth', () => {
     expect(auth.autenticado()).toBe(false);
     expect(localStorage.getItem('playmotricity_token')).toBeNull();
   });
+
+  it('tieneRol refleja el rol del usuario en sesion', () => {
+    expect(auth.tieneRol('DOCENTE')).toBe(false);
+    auth.login('ana@x.com', 'x').subscribe();
+    http.expectOne('http://localhost:8080/api/auth/login').flush({
+      token: 'tok', tipo: 'Bearer', expiraEnMs: 1000,
+      usuario: { id: '1', nombre: 'Ana', correo: 'ana@x.com', rol: 'PADRE' },
+    });
+    expect(auth.rol()).toBe('PADRE');
+    expect(auth.tieneRol('PADRE')).toBe(true);
+    expect(auth.tieneRol('DOCENTE')).toBe(false);
+    expect(auth.tieneRol('DOCENTE', 'PADRE')).toBe(true);
+  });
 });

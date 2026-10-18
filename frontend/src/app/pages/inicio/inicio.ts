@@ -2,10 +2,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { PerfilService } from '../../services/perfil';
+import { InfoRol } from '../../components/info-rol/info-rol';
 
 @Component({
   selector: 'app-inicio',
-  imports: [RouterLink],
+  imports: [RouterLink, InfoRol],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
