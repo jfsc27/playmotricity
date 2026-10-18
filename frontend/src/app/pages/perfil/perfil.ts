@@ -47,7 +47,11 @@ interface DatosPadre {
           <div class="topbar-right">
             <div class="user-badge">
               <div class="user-avatar" [class]="'user-avatar--' + (auth.usuario()?.rol?.toLowerCase() ?? 'docente')">
-                {{ iniciales() }}
+                @if (auth.usuario()?.fotoPerfil) {
+                  <img [src]="auth.usuario()?.fotoPerfil" alt="Avatar" class="avatar-foto-img" />
+                } @else {
+                  {{ iniciales() }}
+                }
               </div>
               <div class="user-info">
                 <span class="user-name">{{ usuario()?.nombre }}</span>
@@ -57,14 +61,43 @@ interface DatosPadre {
           </div>
         </header>
 
+        <!-- Mensajes de feedback -->
+        @if (mensajeFoto()) {
+          <div class="alert alert--success" style="padding: 1rem 1.5rem; background: #ecfdf5; border: 2px solid #10b981; border-radius: 1.5rem; color: #065f46; font-weight: 700; margin-bottom: 1rem;">
+            <span>✨ {{ mensajeFoto() }}</span>
+          </div>
+        }
+        @if (errorFoto()) {
+          <div class="alert alert--error" style="padding: 1rem 1.5rem; background: #fef2f2; border: 2px solid #ef4444; border-radius: 1.5rem; color: #991b1b; font-weight: 700; margin-bottom: 1rem;">
+            <span>⚠️ {{ errorFoto() }}</span>
+          </div>
+        }
+
         <!-- Contenido principal del perfil -->
         <section class="perfil-body">
           <!-- Tarjeta de Identidad Principal -->
           <div class="perfil-hero-card">
             <div class="hero-avatar-area">
               <div class="hero-avatar" [class]="'hero-avatar--' + (auth.usuario()?.rol?.toLowerCase() ?? 'docente')">
-                {{ iniciales() }}
+                @if (auth.usuario()?.fotoPerfil) {
+                  <img [src]="auth.usuario()?.fotoPerfil" alt="Foto de perfil" class="avatar-foto-img" />
+                } @else {
+                  {{ iniciales() }}
+                }
               </div>
+
+              <div class="foto-controles">
+                <label class="btn-foto-accion" title="Seleccionar foto de perfil">
+                  <span>{{ subiendoFoto() ? 'Subiendo…' : '📷 ' + (auth.usuario()?.fotoPerfil ? 'Cambiar foto' : 'Subir foto') }}</span>
+                  <input type="file" accept="image/*" class="input-archivo-oculto" (change)="onSeleccionarFotoUsuario($event)" [disabled]="subiendoFoto()" />
+                </label>
+                @if (auth.usuario()?.fotoPerfil) {
+                  <button type="button" class="btn-foto-quitar" (click)="quitarFotoUsuario()" [disabled]="subiendoFoto()">
+                    ✕ Quitar
+                  </button>
+                }
+              </div>
+
               <div class="hero-badge-rol">
                 <span>{{ esDocente() ? '🎓 Docente Educador' : '🏡 Padre / Acudiente' }}</span>
               </div>
@@ -217,6 +250,62 @@ interface DatosPadre {
       &--padre {
         background: linear-gradient(135deg, var(--pm-blue) 0%, #2563EB 100%);
       }
+    }
+
+    .avatar-foto-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .foto-controles {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 0.25rem 0;
+    }
+
+    .btn-foto-accion {
+      background: #fff;
+      border: 2px solid var(--pm-orange);
+      color: var(--pm-orange);
+      padding: 0.35rem 0.9rem;
+      border-radius: 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        background: var(--pm-orange);
+        color: #fff;
+        transform: translateY(-1px);
+      }
+    }
+
+    .btn-foto-quitar {
+      background: #fef2f2;
+      border: 1px solid #f87171;
+      color: #b91c1c;
+      padding: 0.35rem 0.65rem;
+      border-radius: 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #fee2e2;
+      }
+    }
+
+    .input-archivo-oculto {
+      display: none;
     }
 
     .hero-badge-rol {
@@ -420,6 +509,9 @@ export class MiPerfil implements OnInit {
   protected readonly datosPadre = signal<DatosPadre | null>(null);
   protected readonly totalPerfiles = signal<number>(0);
   protected readonly cargando = signal(true);
+  protected readonly subiendoFoto = signal(false);
+  protected readonly mensajeFoto = signal<string | null>(null);
+  protected readonly errorFoto = signal<string | null>(null);
 
   protected readonly iniciales = computed(() => {
     const nombre = this.usuario()?.nombre ?? '';
@@ -429,6 +521,78 @@ export class MiPerfil implements OnInit {
       .map((p) => p.charAt(0).toUpperCase())
       .join('');
   });
+
+  protected onSeleccionarFotoUsuario(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivo = input.files[0];
+    this.procesarYSubirFoto(archivo);
+  }
+
+  protected quitarFotoUsuario(): void {
+    this.subiendoFoto.set(true);
+    this.errorFoto.set(null);
+    this.auth.actualizarFotoPerfil('').subscribe({
+      next: () => {
+        this.subiendoFoto.set(false);
+        this.mensajeFoto.set('Foto de perfil eliminada. Ahora se muestran tus iniciales.');
+        setTimeout(() => this.mensajeFoto.set(null), 4000);
+      },
+      error: () => {
+        this.subiendoFoto.set(false);
+        this.errorFoto.set('No se pudo quitar la foto de perfil.');
+      },
+    });
+  }
+
+  private procesarYSubirFoto(archivo: File): void {
+    this.subiendoFoto.set(true);
+    this.errorFoto.set(null);
+
+    const lector = new FileReader();
+    lector.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 300;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const base64Optimizada = canvas.toDataURL('image/jpeg', 0.85);
+
+          this.auth.actualizarFotoPerfil(base64Optimizada).subscribe({
+            next: () => {
+              this.subiendoFoto.set(false);
+              this.mensajeFoto.set('¡Foto de perfil actualizada exitosamente!');
+              setTimeout(() => this.mensajeFoto.set(null), 4000);
+            },
+            error: () => {
+              this.subiendoFoto.set(false);
+              this.errorFoto.set('No se pudo guardar la imagen en el servidor.');
+            },
+          });
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    lector.readAsDataURL(archivo);
+  }
 
   ngOnInit(): void {
     this.cargarDatos();

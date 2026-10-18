@@ -14,6 +14,8 @@ import { SaltaCanguro } from './juegos/salta-canguro';
 import { EquilibrioFlamenco } from './juegos/equilibrio-flamenco';
 import { CarreraObstaculos } from './juegos/carrera-obstaculos';
 import { LanzaAtrapa } from './juegos/lanza-atrapa';
+import { SecuenciaDeportiva } from './juegos/secuencia-deportiva';
+import { PanelReaccion } from './juegos/panel-reaccion';
 
 @Component({
   selector: 'app-zona-juegos',
@@ -32,6 +34,8 @@ import { LanzaAtrapa } from './juegos/lanza-atrapa';
     EquilibrioFlamenco,
     CarreraObstaculos,
     LanzaAtrapa,
+    SecuenciaDeportiva,
+    PanelReaccion,
   ],
   templateUrl: './zona-juegos.html',
   styleUrl: './zona-juegos.scss',
@@ -111,6 +115,8 @@ export class ZonaJuegos implements OnInit {
       .toUpperCase();
 
     // 1. Minijuegos específicos
+    if (nombre.includes('SECUENCIA DEPORTIVA') || nombre.includes('SECUENCIA')) return 'SECUENCIA_DEPORTIVA';
+    if (nombre.includes('PANEL DE REACCION') || nombre.includes('REACCION') || nombre.includes('FITLIGHT')) return 'PANEL_REACCION';
     if (nombre.includes('ALIMENTA AL MONSTRUO') || nombre.includes('MONSTRUO')) return 'ALIMENTA_MONSTRUO';
     if (nombre.includes('CONECTA LOS PUNTOS') || nombre.includes('CONECTA')) return 'CONECTA_PUNTOS';
     if (nombre.includes('ARRASTRA LOS COLORES') || (nombre.includes('ARRASTRA') && nombre.includes('COLOR'))) return 'ARRASTRA_COLORES';
@@ -133,6 +139,8 @@ export class ZonaJuegos implements OnInit {
 
     // 4. Fallbacks por formato de interacción
     const formato = (asignacion.formatoInteraccion ?? '').toUpperCase();
+    if (formato === 'DRAG_DROP_SEQUENCE') return 'SECUENCIA_DEPORTIVA';
+    if (formato === 'REACTION_PANEL') return 'PANEL_REACCION';
     if (formato === 'DRAG_DROP_MULTIPLE') return 'CLASIFICA_FORMAS';
     if (formato === 'TIMED_CHALLENGE') return 'CARRERA_TIEMPO';
     if (formato === 'CANVAS_TRACE') return 'TRAZO_MAGICO';

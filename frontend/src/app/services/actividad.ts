@@ -111,7 +111,7 @@ export class ActividadService {
   }
 
   /** Emite sonido de éxito o error lúdico usando Web Audio API */
-  reproducirEfectoSonoro(tipo: 'exito' | 'error' | 'campana' | 'victoria'): void {
+  reproducirEfectoSonoro(tipo: 'exito' | 'error' | 'campana' | 'victoria' | 'pop'): void {
     try {
       const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const osc = audioCtx.createOscillator();
@@ -139,12 +139,15 @@ export class ActividadService {
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
         osc.start(now);
         osc.stop(now + 0.6);
-      } else if (tipo === 'campana') {
-        osc.frequency.setValueAtTime(880, now);
+      } else if (tipo === 'campana' || tipo === 'pop') {
+        osc.frequency.setValueAtTime(tipo === 'pop' ? 600 : 880, now);
+        if (tipo === 'pop') {
+          osc.frequency.exponentialRampToValueAtTime(900, now + 0.08);
+        }
         gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
         osc.start(now);
-        osc.stop(now + 0.25);
+        osc.stop(now + 0.2);
       } else {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(220, now);
@@ -224,11 +227,18 @@ export class ActividadService {
       return '🤸';
     }
 
+    const nom = (actividad.nombre ?? '').toUpperCase();
+    if (nom.includes('SECUENCIA')) return '🥇';
+    if (nom.includes('REACCION') || nom.includes('PANEL')) return '⚡';
+    if (nom.includes('MONSTRUO')) return '👾';
+    if (nom.includes('PUNTOS')) return '🔢';
+
     const formato = actividad.formatoInteraccion?.toUpperCase() ?? '';
     if (formato.includes('DRAG_DROP_MULTIPLE')) return '🧩';
     if (formato.includes('DRAG_DROP')) return '🎨';
     if (formato.includes('TIMED')) return '⏱️';
     if (formato.includes('CANVAS')) return '✨';
+    if (formato.includes('REACTION')) return '⚡';
     return '🎮';
   }
 }

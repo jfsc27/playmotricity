@@ -19,7 +19,11 @@
       <div class="topbar-right">
         <div class="user-badge">
           <div class="user-avatar" [class]="'user-avatar--' + (auth.usuario()?.rol?.toLowerCase() ?? 'docente')">
-            {{ iniciales() }}
+            @if (auth.usuario()?.fotoPerfil) {
+              <img [src]="auth.usuario()?.fotoPerfil" alt="Avatar" class="avatar-foto-img" />
+            } @else {
+              {{ iniciales() }}
+            }
           </div>
           <div class="user-info">
             <span class="user-name">{{ auth.usuario()?.nombre }}</span>

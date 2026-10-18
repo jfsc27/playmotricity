@@ -12,7 +12,13 @@
       </div>
       <div class="topbar-right">
         <div class="user-badge">
-          <div class="user-avatar" [class]="'user-avatar--' + (auth.rol()?.toLowerCase() ?? 'docente')">{{ iniciales() }}</div>
+          <div class="user-avatar" [class]="'user-avatar--' + (auth.rol()?.toLowerCase() ?? 'docente')">
+            @if (auth.usuario()?.fotoPerfil) {
+              <img [src]="auth.usuario()?.fotoPerfil" alt="Avatar" class="avatar-foto-img" />
+            } @else {
+              {{ iniciales() }}
+            }
+          </div>
           <div class="user-info">
             <span class="user-name">{{ auth.usuario()?.nombre }}</span>
             <span class="user-role">{{ rolLabel() }}</span>
@@ -32,16 +38,22 @@
         </div>
       } @else {
 
-        <!-- Selector de niño -->
-        <div class="pg-selector" role="tablist" aria-label="Seleccionar perfil infantil">
-          @for (p of perfiles(); track p.id) {
-            <button type="button" class="pg-chip" role="tab"
-                    [class.pg-chip--activo]="p.id === perfilId()"
-                    [attr.aria-selected]="p.id === perfilId()"
-                    (click)="seleccionar(p.id)">
-              {{ p.nombre }} <small>{{ p.edad }} años</small>
-            </button>
-          }
+        <!-- Selector de niño y Exportar PDF -->
+        <div class="pg-barra-acciones" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="pg-selector" role="tablist" aria-label="Seleccionar perfil infantil" style="margin-bottom: 0;">
+            @for (p of perfiles(); track p.id) {
+              <button type="button" class="pg-chip" role="tab"
+                      [class.pg-chip--activo]="p.id === perfilId()"
+                      [attr.aria-selected]="p.id === perfilId()"
+                      (click)="seleccionar(p.id)">
+                {{ p.nombre }} <small>{{ p.edad }} años</small>
+              </button>
+            }
+          </div>
+
+          <button class="btn btn--outline" type="button" (click)="exportarPDF()" [disabled]="exportandoPDF()" style="display: inline-flex; align-items: center; gap: 0.5rem; border-color: #ff7a45; color: #ea580c; font-weight: 700;">
+            <span>📥 Exportar Informe en PDF</span>
+          </button>
         </div>
 
         @if (error()) { <p class="pg-alerta pg-alerta--error" role="alert">{{ error() }}</p> }
@@ -165,9 +177,14 @@
           <div class="pg-card">
             <div class="pg-card__cabecera">
               <h3 class="section-title">Reportes de progreso</h3>
-              <button class="btn btn--primary" type="button" (click)="generarReporte()" [disabled]="generando()">
-                {{ generando() ? 'Generando…' : 'Generar reporte' }}
-              </button>
+              <div class="pg-reporte-botones" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn--outline" type="button" (click)="exportarPDF()" [disabled]="exportandoPDF()" style="border-color: #2563eb; color: #2563eb; font-weight: 700;">
+                  📄 Descargar PDF
+                </button>
+                <button class="btn btn--primary" type="button" (click)="generarReporte()" [disabled]="generando()">
+                  {{ generando() ? 'Generando…' : 'Generar reporte' }}
+                </button>
+              </div>
             </div>
             @if (reportes().length === 0) {
               <p class="pg-nota">Aún no se han generado reportes. Un reporte guarda una foto del progreso actual.</p>

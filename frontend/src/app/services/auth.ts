@@ -12,6 +12,7 @@ export interface Usuario {
   nombre: string;
   correo: string;
   rol: Rol;
+  fotoPerfil?: string;
 }
 
 export interface AuthResponse {
@@ -81,6 +82,28 @@ export class Auth {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/register/padre`, datos)
       .pipe(tap((res) => this.guardarSesion(res)));
+  }
+
+  actualizarFotoPerfil(fotoPerfil: string): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/foto`, { fotoPerfil }).pipe(
+      tap((u) => {
+        const actual = this._usuario();
+        if (actual) {
+          const actualizado: Usuario = { ...actual, fotoPerfil: u.fotoPerfil || fotoPerfil };
+          localStorage.setItem(USER_KEY, JSON.stringify(actualizado));
+          this._usuario.set(actualizado);
+        }
+      })
+    );
+  }
+
+  refrescarUsuario(): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/me`).pipe(
+      tap((u) => {
+        localStorage.setItem(USER_KEY, JSON.stringify(u));
+        this._usuario.set(u);
+      })
+    );
   }
 
   logout(): void {

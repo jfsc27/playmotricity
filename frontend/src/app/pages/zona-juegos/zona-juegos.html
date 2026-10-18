@@ -107,6 +107,18 @@
                   (completado)="onJuegoCompletado($event)"
                 />
               }
+              @case ('SECUENCIA_DEPORTIVA') {
+                <app-secuencia-deportiva
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('PANEL_REACCION') {
+                <app-panel-reaccion
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
               @case ('RETO_MOTRIZ') {
                 <app-reto-motriz
                   [asignacion]="asignacionActual()!"

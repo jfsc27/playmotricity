@@ -9,18 +9,21 @@ export interface PerfilInfantil {
   edad: number;
   grupoGrado?: string;
   fechaRegistro: string;
+  fotoPerfil?: string;
 }
 
 export interface CrearPerfilDTO {
   nombre: string;
   fechaNacimiento: string;
   grupoGrado?: string;
+  fotoPerfil?: string;
 }
 
 export interface ActualizarPerfilDTO {
   nombre: string;
   fechaNacimiento: string;
   grupoGrado?: string;
+  fotoPerfil?: string;
 }
 
 export interface InfoReglaEdad {
@@ -64,6 +67,13 @@ export class PerfilService {
    */
   actualizar(id: string, dto: ActualizarPerfilDTO): Observable<PerfilInfantil> {
     return this.http.put<PerfilInfantil>(`${this.apiUrl}/${id}`, dto);
+  }
+
+  /**
+   * Actualiza exclusivamente la foto de un perfil infantil.
+   */
+  actualizarFoto(id: string, fotoPerfil: string): Observable<PerfilInfantil> {
+    return this.http.put<PerfilInfantil>(`${this.apiUrl}/${id}/foto`, { fotoPerfil });
   }
 
   /**

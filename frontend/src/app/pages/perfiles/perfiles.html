@@ -32,7 +32,11 @@
 
         <div class="user-badge">
           <div class="user-avatar" [class]="'user-avatar--' + (auth.usuario()?.rol?.toLowerCase() ?? 'docente')">
-            {{ inicialesUsuario() }}
+            @if (auth.usuario()?.fotoPerfil) {
+              <img [src]="auth.usuario()?.fotoPerfil" alt="Avatar" class="avatar-foto-img" />
+            } @else {
+              {{ inicialesUsuario() }}
+            }
           </div>
           <div class="user-info">
             <span class="user-name">{{ auth.usuario()?.nombre }}</span>
@@ -149,9 +153,18 @@
               <div class="profile-card-header">
                 <div
                   class="profile-avatar"
-                  [style.background]="obtenerAvatarGradiente(perfil.nombre)"
+                  [style.background]="perfil.fotoPerfil ? 'transparent' : obtenerAvatarGradiente(perfil.nombre)"
+                  [title]="perfil.nombre"
                 >
-                  {{ obtenerIniciales(perfil.nombre) }}
+                  @if (perfil.fotoPerfil) {
+                    <img [src]="perfil.fotoPerfil" alt="Foto de {{ perfil.nombre }}" class="avatar-foto-img" />
+                  } @else {
+                    {{ obtenerIniciales(perfil.nombre) }}
+                  }
+                  <label class="btn-foto-flotante" title="Cambiar foto de este perfil">
+                    📷
+                    <input type="file" accept="image/*" class="input-archivo-oculto" (change)="onCambiarFotoDirecta(perfil, $event)" />
+                  </label>
                 </div>
                 <div class="profile-identity">
                   <h3 class="profile-name">{{ perfil.nombre }}</h3>
@@ -271,6 +284,33 @@
       </header>
 
       <form [formGroup]="form" (ngSubmit)="guardarPerfil()" novalidate class="modal-form">
+
+        <!-- Selector Opcional de Foto de Perfil Infantil -->
+        <div class="field field-foto-modal">
+          <label class="field-label">
+            Foto del niño/a <span class="field-optional">(opcional)</span>
+          </label>
+          <div class="foto-picker-box">
+            <div class="foto-picker-preview" [style.background]="fotoTemporal() ? 'transparent' : 'var(--pm-orange-light)'">
+              @if (fotoTemporal()) {
+                <img [src]="fotoTemporal()" alt="Previsualización" class="avatar-foto-img" />
+              } @else {
+                <span class="placeholder-emoji">👶</span>
+              }
+            </div>
+            <div class="foto-picker-acciones">
+              <label class="btn btn--outline btn-subir-foto-modal">
+                <span>📷 {{ fotoTemporal() ? 'Cambiar imagen' : 'Seleccionar foto' }}</span>
+                <input type="file" accept="image/*" class="input-archivo-oculto" (change)="onSeleccionarFotoPerfil($event)" />
+              </label>
+              @if (fotoTemporal()) {
+                <button type="button" class="btn-quitar-foto-modal" (click)="quitarFotoTemporal()">
+                  ✕ Quitar foto
+                </button>
+              }
+            </div>
+          </div>
+        </div>
 
         <!-- Campo Nombre -->
         <div class="field" [class.field--error]="form.controls.nombre.touched && form.controls.nombre.invalid">

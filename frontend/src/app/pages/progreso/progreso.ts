@@ -15,6 +15,7 @@ import {
 } from '../../services/seguimiento';
 
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { PdfExportService } from '../../services/pdf-export.service';
 
 @Component({
   selector: 'app-progreso',
@@ -27,6 +28,7 @@ export class Progreso implements OnInit {
   protected readonly auth = inject(Auth);
   private readonly perfilService = inject(PerfilService);
   private readonly seguimiento = inject(SeguimientoService);
+  private readonly pdfExportService = inject(PdfExportService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -40,6 +42,7 @@ export class Progreso implements OnInit {
   protected readonly pestana = signal<'completadas' | 'resultados'>('completadas');
   protected readonly cargando = signal(true);
   protected readonly generando = signal(false);
+  protected readonly exportandoPDF = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly aviso = signal<string | null>(null);
 
@@ -119,6 +122,44 @@ export class Progreso implements OnInit {
         this.error.set('No se pudo generar el reporte.');
       },
     });
+  }
+
+  /**
+   * Exporta un informe integral en formato PDF con diseño institucional.
+   * Si no hay reportes o actividades completadas cargadas, muestra un mensaje descriptivo sin error.
+   */
+  protected exportarPDF(): void {
+    const id = this.perfilId();
+    const perfil = this.perfiles().find((p) => p.id === id);
+    const prog = this.progreso();
+
+    if (!perfil || !prog) {
+      this.error.set('Selecciona un perfil infantil para poder exportar el informe.');
+      return;
+    }
+
+    // Validación solicitada: si no hay reportes generados ni actividades completadas, mostrar mensaje
+    if (this.reportes().length === 0 && this.completadas().length === 0) {
+      this.aviso.set('ℹ️ Aún no hay reportes ni actividades completadas cargadas para este perfil. ¡Juega actividades o genera un reporte para exportar el PDF!');
+      return;
+    }
+
+    this.exportandoPDF.set(true);
+    try {
+      this.pdfExportService.exportarProgresoPDF(
+        perfil,
+        prog,
+        this.resultados(),
+        this.reportes(),
+        this.auth.usuario()?.nombre ?? 'Docente / Acudiente',
+        this.rolLabel()
+      );
+      this.aviso.set('📄 ¡Informe en PDF generado y descargado correctamente con diseño institucional!');
+    } catch {
+      this.error.set('No se pudo generar el documento PDF. Por favor intenta de nuevo.');
+    } finally {
+      this.exportandoPDF.set(false);
+    }
   }
 
   protected nombreTipo(tipo: TipoActividad): string {

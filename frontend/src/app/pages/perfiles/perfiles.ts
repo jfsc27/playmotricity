@@ -37,6 +37,7 @@ export class Perfiles implements OnInit {
   protected readonly modalFormAbierto = signal(false);
   protected readonly modoEdicion = signal(false);
   protected readonly idPerfilEdicion = signal<string | null>(null);
+  protected readonly fotoTemporal = signal<string | null>(null);
   protected readonly modalEliminarAbierto = signal(false);
   protected readonly perfilAEliminar = signal<PerfilInfantil | null>(null);
 
@@ -136,6 +137,7 @@ export class Perfiles implements OnInit {
   protected abrirModalCrear(): void {
     this.modoEdicion.set(false);
     this.idPerfilEdicion.set(null);
+    this.fotoTemporal.set(null);
     this.errorFormulario.set(null);
     this.form.reset({
       nombre: '',
@@ -155,6 +157,7 @@ export class Perfiles implements OnInit {
   protected abrirModalEditar(perfil: PerfilInfantil): void {
     this.modoEdicion.set(true);
     this.idPerfilEdicion.set(perfil.id);
+    this.fotoTemporal.set(perfil.fotoPerfil || null);
     this.errorFormulario.set(null);
     this.form.setValue({
       nombre: perfil.nombre,
@@ -167,7 +170,74 @@ export class Perfiles implements OnInit {
 
   protected cerrarModalForm(): void {
     this.modalFormAbierto.set(false);
+    this.fotoTemporal.set(null);
     this.errorFormulario.set(null);
+  }
+
+  protected onSeleccionarFotoPerfil(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivo = input.files[0];
+    this.comprimirImagen(archivo, (base64) => {
+      this.fotoTemporal.set(base64);
+    });
+  }
+
+  protected quitarFotoTemporal(): void {
+    this.fotoTemporal.set(null);
+  }
+
+  protected onCambiarFotoDirecta(perfil: PerfilInfantil, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivo = input.files[0];
+    this.comprimirImagen(archivo, (base64) => {
+      this.perfilService.actualizarFoto(perfil.id, base64).subscribe({
+        next: (act) => {
+          this.perfiles.update((lista) => lista.map((p) => (p.id === perfil.id ? act : p)));
+          this.mostrarNotificacion(`Foto de "${act.nombre}" actualizada.`);
+        },
+        error: () => {
+          this.errorGeneral.set('No se pudo actualizar la foto del perfil infantil.');
+        },
+      });
+    });
+  }
+
+  private comprimirImagen(archivo: File, callback: (base64: string) => void): void {
+    const lector = new FileReader();
+    lector.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 300;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const base64 = canvas.toDataURL('image/jpeg', 0.85);
+          callback(base64);
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    lector.readAsDataURL(archivo);
   }
 
   // Guardar (Crear o Actualizar)
@@ -189,10 +259,11 @@ export class Perfiles implements OnInit {
     }
 
     this.guardando.set(true);
+    const foto = this.fotoTemporal() || undefined;
 
     if (this.modoEdicion()) {
       const id = this.idPerfilEdicion()!;
-      this.perfilService.actualizar(id, { nombre, fechaNacimiento, grupoGrado }).subscribe({
+      this.perfilService.actualizar(id, { nombre, fechaNacimiento, grupoGrado, fotoPerfil: foto }).subscribe({
         next: (actualizado) => {
           this.guardando.set(false);
           this.perfiles.update((lista) =>
@@ -207,7 +278,7 @@ export class Perfiles implements OnInit {
         },
       });
     } else {
-      this.perfilService.crear({ nombre, fechaNacimiento, grupoGrado }).subscribe({
+      this.perfilService.crear({ nombre, fechaNacimiento, grupoGrado, fotoPerfil: foto }).subscribe({
         next: (creado) => {
           this.guardando.set(false);
           this.perfiles.update((lista) => [creado, ...lista]);
