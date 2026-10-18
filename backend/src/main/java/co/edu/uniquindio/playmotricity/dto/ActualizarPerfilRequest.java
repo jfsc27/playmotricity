@@ -16,6 +16,11 @@ public record ActualizarPerfilRequest(
         @Past(message = "La fecha de nacimiento debe ser en el pasado")
         LocalDate fechaNacimiento,
 
-        String grupoGrado
+        String grupoGrado,
+
+        String fotoPerfil
 ) {
+        public ActualizarPerfilRequest(String nombre, LocalDate fechaNacimiento, String grupoGrado) {
+                this(nombre, fechaNacimiento, grupoGrado, null);
+        }
 }

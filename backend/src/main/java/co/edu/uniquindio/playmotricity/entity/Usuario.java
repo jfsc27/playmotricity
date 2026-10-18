@@ -39,6 +39,9 @@ public abstract class Usuario {
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "foto_perfil", columnDefinition = "TEXT")
+    private String fotoPerfil;
+
     @ManyToMany
     @JoinTable(
             name = "usuario_perfil",
@@ -117,5 +120,13 @@ public abstract class Usuario {
 
     public void eliminarPerfil(PerfilInfantil perfil) {
         this.perfiles.remove(perfil);
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 }

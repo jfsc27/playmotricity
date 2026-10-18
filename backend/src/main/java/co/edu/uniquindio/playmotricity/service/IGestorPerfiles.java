@@ -23,5 +23,7 @@ public interface IGestorPerfiles {
 
     PerfilInfantil actualizarPerfilDeUsuario(UUID id, PerfilInfantil datosActualizados, String correoUsuario);
 
+    PerfilInfantil actualizarFotoDePerfil(UUID id, String fotoPerfil, String correoUsuario);
+
     void eliminarPerfilDeUsuario(UUID id, String correoUsuario);
 }

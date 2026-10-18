@@ -15,4 +15,6 @@ public interface ActividadRepository
     List<Actividad> findByEdadMinimaLessThanEqualAndEdadMaximaGreaterThanEqual(int edad, int edad2);
 
     List<Actividad> findAllByOrderByEdadMinimaAscNombreAsc();
+
+    boolean existsByNombre(String nombre);
 }

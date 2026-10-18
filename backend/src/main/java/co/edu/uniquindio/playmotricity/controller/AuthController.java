@@ -47,4 +47,9 @@ public class AuthController {
     public UsuarioResponse me(Authentication authentication) {
         return authService.perfilDe(authentication.getName());
     }
+
+    @org.springframework.web.bind.annotation.PutMapping("/foto")
+    public UsuarioResponse actualizarFoto(@RequestBody co.edu.uniquindio.playmotricity.dto.FotoRequest request, Authentication authentication) {
+        return authService.actualizarFoto(authentication.getName(), request.fotoPerfil());
+    }
 }

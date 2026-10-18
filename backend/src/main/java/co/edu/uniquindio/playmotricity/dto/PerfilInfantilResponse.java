@@ -12,8 +12,20 @@ public record PerfilInfantilResponse(
         LocalDate fechaNacimiento,
         int edad,
         String grupoGrado,
-        LocalDateTime fechaRegistro
+        LocalDateTime fechaRegistro,
+        String fotoPerfil
 ) {
+    public PerfilInfantilResponse(
+            UUID id,
+            String nombre,
+            LocalDate fechaNacimiento,
+            int edad,
+            String grupoGrado,
+            LocalDateTime fechaRegistro
+    ) {
+        this(id, nombre, fechaNacimiento, edad, grupoGrado, fechaRegistro, null);
+    }
+
     public static PerfilInfantilResponse fromEntity(PerfilInfantil perfil) {
         return new PerfilInfantilResponse(
                 perfil.getId(),
@@ -21,7 +33,8 @@ public record PerfilInfantilResponse(
                 perfil.getFechaNacimiento(),
                 perfil.calcularEdad(),
                 perfil.getGrupoGrado(),
-                perfil.getFechaRegistro()
+                perfil.getFechaRegistro(),
+                perfil.getFotoPerfil()
         );
     }
 }

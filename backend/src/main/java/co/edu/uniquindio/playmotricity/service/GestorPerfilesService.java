@@ -94,7 +94,18 @@ public class GestorPerfilesService implements IGestorPerfiles {
         perfil.setNombre(datosActualizados.getNombre());
         perfil.setFechaNacimiento(datosActualizados.getFechaNacimiento());
         perfil.setGrupoGrado(datosActualizados.getGrupoGrado());
+        if (datosActualizados.getFotoPerfil() != null) {
+            perfil.setFotoPerfil(datosActualizados.getFotoPerfil());
+        }
         perfil.validarReglaEdad();
+        return perfilInfantilRepository.save(perfil);
+    }
+
+    @Override
+    @Transactional
+    public PerfilInfantil actualizarFotoDePerfil(UUID id, String fotoPerfil, String correoUsuario) {
+        PerfilInfantil perfil = obtenerPerfilDeUsuario(id, correoUsuario);
+        perfil.setFotoPerfil(fotoPerfil);
         return perfilInfantilRepository.save(perfil);
     }
 

@@ -21,10 +21,6 @@ public class SeedActividades implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (actividadRepository.count() > 0) {
-            return;
-        }
-
         List<Actividad> semillas = List.of(
                 // 1. Minijuego: Arrastra los Colores (2-3 años)
                 new Minijuego(
@@ -135,9 +131,35 @@ public class SeedActividades implements CommandLineRunner {
                         "Lanza la pelota suave hacia el objetivo y luego intenta atraparla. ¡Practica con un adulto!",
                         "LANZAMIENTO",
                         true
+                ),
+                // 11. Minijuego: Secuencia Deportiva (5-6 años)
+                new Minijuego(
+                        "Secuencia Deportiva",
+                        "Ordena cronológicamente los pasos de un salto motor para estimular la planificación y lógica de secuencias motrices.",
+                        TipoActividad.MOTRICIDAD_FINA,
+                        5,
+                        6,
+                        "Arrastra y organiza en orden cronológico las tarjetas de los pasos del salto. ¡Comprueba cuando termines!",
+                        "DRAG_DROP_SEQUENCE",
+                        120
+                ),
+                // 12. Minijuego: Panel de Reacción (5-6 años)
+                new Minijuego(
+                        "Panel de Reacción",
+                        "Entrenamiento visual de reflejos y coordinación óculo-manual estilo FitLights tocando pulsadores neón.",
+                        TipoActividad.MIXTA,
+                        5,
+                        6,
+                        "¡Toca rápidamente los pulsadores de luz neón apenas se iluminen antes de que se apaguen!",
+                        "REACTION_PANEL",
+                        30
                 )
         );
 
-        actividadRepository.saveAll(semillas);
+        for (Actividad act : semillas) {
+            if (!actividadRepository.existsByNombre(act.getNombre())) {
+                actividadRepository.save(act);
+            }
+        }
     }
 }

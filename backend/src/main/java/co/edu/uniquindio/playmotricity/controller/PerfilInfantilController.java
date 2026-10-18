@@ -42,6 +42,7 @@ public class PerfilInfantilController {
                 request.fechaNacimiento(),
                 request.grupoGrado()
         );
+        nuevo.setFotoPerfil(request.fotoPerfil());
         PerfilInfantil guardado = gestorPerfiles.crearPerfilParaUsuario(nuevo, authentication.getName());
         return PerfilInfantilResponse.fromEntity(guardado);
     }
@@ -74,7 +75,18 @@ public class PerfilInfantilController {
                 request.fechaNacimiento(),
                 request.grupoGrado()
         );
+        datos.setFotoPerfil(request.fotoPerfil());
         PerfilInfantil actualizado = gestorPerfiles.actualizarPerfilDeUsuario(id, datos, authentication.getName());
+        return PerfilInfantilResponse.fromEntity(actualizado);
+    }
+
+    @PutMapping("/{id}/foto")
+    public PerfilInfantilResponse actualizarFoto(
+            @PathVariable UUID id,
+            @RequestBody co.edu.uniquindio.playmotricity.dto.FotoRequest request,
+            Authentication authentication
+    ) {
+        PerfilInfantil actualizado = gestorPerfiles.actualizarFotoDePerfil(id, request.fotoPerfil(), authentication.getName());
         return PerfilInfantilResponse.fromEntity(actualizado);
     }
 

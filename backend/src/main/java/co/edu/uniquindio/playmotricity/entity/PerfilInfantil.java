@@ -41,6 +41,9 @@ public class PerfilInfantil {
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "foto_perfil", columnDefinition = "TEXT")
+    private String fotoPerfil;
+
     @ManyToMany(mappedBy = "perfiles")
     private Set<Usuario> usuarios = new HashSet<>();
 
@@ -140,5 +143,13 @@ public class PerfilInfantil {
 
     public void setUsuarios(Set<Usuario> usuarios) {
         this.usuarios = usuarios;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 }

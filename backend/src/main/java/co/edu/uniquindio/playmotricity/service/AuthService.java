@@ -62,6 +62,14 @@ public class AuthService {
         return aDto(usuarioRepository.findByCorreo(correo).orElseThrow());
     }
 
+    @Transactional
+    public UsuarioResponse actualizarFoto(String correo, String fotoPerfil) {
+        Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow();
+        usuario.setFotoPerfil(fotoPerfil);
+        Usuario guardado = usuarioRepository.save(usuario);
+        return aDto(guardado);
+    }
+
     private void validarCorreoLibre(String correo) {
         if (usuarioRepository.existsByCorreo(correo)) {
             throw new CorreoDuplicadoException(correo);
@@ -74,6 +82,6 @@ public class AuthService {
     }
 
     private UsuarioResponse aDto(Usuario u) {
-        return new UsuarioResponse(u.getId(), u.getNombre(), u.getCorreo(), UsuarioDetailsService.rolDe(u));
+        return new UsuarioResponse(u.getId(), u.getNombre(), u.getCorreo(), UsuarioDetailsService.rolDe(u), u.getFotoPerfil());
     }
 }
