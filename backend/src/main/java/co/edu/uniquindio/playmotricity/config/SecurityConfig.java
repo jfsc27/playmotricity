@@ -52,10 +52,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/health", "/api/auth/login", "/api/auth/register/**").permitAll()
+                        // Spring reenvia las excepciones no controladas a /error; sin esto un 500 llega como 401
+                        .requestMatchers("/error").permitAll()
                         // Autorizacion por rol: los modulos exclusivos de cada rol van bajo su prefijo
                         .requestMatchers("/api/docente/**").hasRole(Rol.DOCENTE.name())
                         .requestMatchers("/api/padre/**").hasRole(Rol.PADRE.name())
                         .requestMatchers("/api/perfiles/**").hasAnyRole(Rol.DOCENTE.name(), Rol.PADRE.name())
+                        .requestMatchers("/api/asignaciones/**").hasAnyRole(Rol.DOCENTE.name(), Rol.PADRE.name())
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

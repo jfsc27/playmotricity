@@ -69,3 +69,29 @@ Sin token → `401`. Con token pero sin el rol necesario → `403` con `{"mensaj
 
 Para un endpoint nuevo exclusivo de un rol, ponlo bajo `/api/docente/...` o `/api/padre/...` (o usa `@PreAuthorize("hasRole('DOCENTE')")`).
 En Angular, protege la ruta con `canActivate: [authGuard, rolGuard]` y `data: { roles: ['DOCENTE'] }`; si el rol no coincide se redirige a `/acceso-denegado`.
+
+## Regla de resultados (`/api/asignaciones`)
+
+Accesible para `DOCENTE` y `PADRE`, solo sobre asignaciones de niños a su cargo.
+
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/api/asignaciones/{id}` | Consulta la asignación, su estado y su resultado (si existe). |
+| `POST` | `/api/asignaciones/{id}/resultados` | Registra el resultado de la actividad y actualiza el estado. |
+
+Cuerpo del `POST`: `{"puntaje": 85.5, "precision": 90, "tiempoEjecucionSeg": 120, "completada": true}`
+(`puntaje` y `precision` de 0 a 100, `tiempoEjecucionSeg` de 1 a 7200).
+
+Reglas:
+1. La asignación debe existir (`404`) y su perfil infantil debe estar a cargo del usuario (`403`).
+2. Si la asignación ya está `COMPLETADA`, se rechaza con `409`.
+3. Se guarda un único `ResultadoActividad` por asignación; un intento no completado se reemplaza con el siguiente.
+4. El estado pasa a `COMPLETADA` si `completada` es `true`, o a `EN_PROGRESO` si es `false`.
+5. Datos inválidos, JSON mal formado o ID inválido → `400` con `{"mensaje": "..."}`.
+
+### Validar con Postman
+
+En la carpeta `postman/`:
+1. Ejecuta `datos-prueba-resultados.sql` en la base de datos (crea un niño, un minijuego y una asignación de prueba para `docente@playmotricity.com`; se puede repetir para reiniciar la prueba).
+2. En Postman importa `PlayMotricity-Resultados.postman_collection.json` y `PlayMotricity-Local.postman_environment.json`, selecciona el entorno **PlayMotricity Local**.
+3. Con el backend en marcha, ejecuta la colección completa en orden (*Run collection*).
