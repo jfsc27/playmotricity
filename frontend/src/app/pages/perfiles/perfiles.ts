@@ -5,10 +5,11 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Auth } from '../../services/auth';
 import { InfoReglaEdad, PerfilInfantil, PerfilService } from '../../services/perfil';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-perfiles',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SidebarComponent],
   templateUrl: './perfiles.html',
   styleUrl: './perfiles.scss',
 })

@@ -1,0 +1,277 @@
+<div class="dashboard">
+
+  <app-sidebar />
+
+  <!-- ═══════════ Main Content Area ═══════════ -->
+  <main class="main-content">
+      <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <nav class="breadcrumb">
+          <a routerLink="/inicio" class="breadcrumb-link">Panel principal</a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">Catálogo de Actividades</span>
+        </nav>
+        <h1 class="page-title">Actividades y Minijuegos</h1>
+        <p class="page-subtitle">Minijuegos interactivos y retos psicomotrices adaptados para 2 a 6 años</p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="user-badge">
+          <div class="user-avatar" [class]="'user-avatar--' + (auth.usuario()?.rol?.toLowerCase() ?? 'docente')">
+            {{ iniciales() }}
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ auth.usuario()?.nombre }}</span>
+            <span class="user-role">{{ rolLabel() }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <section class="dashboard-body">
+
+      <!-- Alerts -->
+      @if (mensajeExito()) {
+        <div class="alert alert--success">
+          <span class="alert-icon">✨</span>
+          <span>{{ mensajeExito() }}</span>
+        </div>
+      }
+      @if (errorGeneral()) {
+        <div class="alert alert--error">
+          <span class="alert-icon">⚠️</span>
+          <span>{{ errorGeneral() }}</span>
+        </div>
+      }
+
+      <!-- KPI Metrics -->
+      <div class="stats-grid">
+        <div class="stat-card stat-card--orange">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-data">
+            <span class="stat-value">{{ totalActividades() }}</span>
+            <span class="stat-label">Actividades totales</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--green">
+          <div class="stat-icon">✂️</div>
+          <div class="stat-data">
+            <span class="stat-value">{{ totalFina() }}</span>
+            <span class="stat-label">Motricidad fina</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--blue">
+          <div class="stat-icon">🏃</div>
+          <div class="stat-data">
+            <span class="stat-value">{{ totalGruesa() }}</span>
+            <span class="stat-label">Motricidad gruesa</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--purple">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-data">
+            <span class="stat-value">{{ totalMixta() }}</span>
+            <span class="stat-label">Retos mixtos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar & Filters -->
+      <div class="toolbar-card">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Buscar por nombre o descripción..."
+            [value]="busqueda()"
+            (input)="busqueda.set($any($event.target).value)"
+          />
+          @if (busqueda()) {
+            <button class="search-clear" (click)="busqueda.set('')">✕</button>
+          }
+        </div>
+
+        <div class="filters-row">
+          <!-- Type Chips -->
+          <div class="chips-group">
+            <span class="chips-label">Tipo:</span>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="tipoFiltro() === null"
+              (click)="tipoFiltro.set(null)"
+            >
+              Todas
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="tipoFiltro() === 'MOTRICIDAD_FINA'"
+              (click)="tipoFiltro.set('MOTRICIDAD_FINA')"
+            >
+              ✂️ Fina
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="tipoFiltro() === 'MOTRICIDAD_GRUESA'"
+              (click)="tipoFiltro.set('MOTRICIDAD_GRUESA')"
+            >
+              🏃 Gruesa
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="tipoFiltro() === 'MIXTA'"
+              (click)="tipoFiltro.set('MIXTA')"
+            >
+              ⭐ Mixta
+            </button>
+          </div>
+
+          <!-- Age Chips -->
+          <div class="chips-group">
+            <span class="chips-label">Edad:</span>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="edadFiltro() === null"
+              (click)="edadFiltro.set(null)"
+            >
+              Todas
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="edadFiltro() === 2"
+              (click)="edadFiltro.set(2)"
+            >
+              2-3 años
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="edadFiltro() === 4"
+              (click)="edadFiltro.set(4)"
+            >
+              4-5 años
+            </button>
+            <button
+              class="filter-chip"
+              [class.filter-chip--active]="edadFiltro() === 6"
+              (click)="edadFiltro.set(6)"
+            >
+              6 años
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activities Grid -->
+      @if (cargando()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando catálogo de actividades...</p>
+        </div>
+      } @else if (actividadesFiltradas().length === 0) {
+        <div class="empty-state">
+          <span class="empty-emoji">🔍</span>
+          <h3>No se encontraron actividades</h3>
+          <p>Prueba ajustando los filtros de búsqueda o edad.</p>
+        </div>
+      } @else {
+        <div class="actividades-grid">
+          @for (act of actividadesFiltradas(); track act.id) {
+            <div class="actividad-card">
+              <!-- Header -->
+              <div class="actividad-card-header">
+                <div class="actividad-avatar" [class]="'avatar--' + actividadService.colorTipo(act.tipoActividad)">
+                  <span>{{ actividadService.iconoActividad(act) }}</span>
+                </div>
+                <div class="actividad-meta">
+                  <div class="badges-row">
+                    <span class="badge-subtipo">{{ act.subtipo === 'MINIJUEGO' ? 'Minijuego' : 'Reto Asistido' }}</span>
+                    <span class="badge-edad">{{ act.edadMinima }}-{{ act.edadMaxima }} años</span>
+                  </div>
+                  <h3 class="actividad-nombre">{{ act.nombre }}</h3>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <p class="actividad-desc">{{ act.descripcion }}</p>
+
+              <!-- Tags / Spec -->
+              <div class="actividad-specs">
+                <span class="spec-pill" [class]="'spec-pill--' + actividadService.colorTipo(act.tipoActividad)">
+                  {{ actividadService.etiquetaTipo(act.tipoActividad) }}
+                </span>
+                @if (act.duracionEstimadaSeg) {
+                  <span class="spec-detail">⏱️ {{ act.duracionEstimadaSeg }} s</span>
+                }
+                @if (act.tipoMovimiento) {
+                  <span class="spec-detail">🤸 Movimiento: {{ act.tipoMovimiento }}</span>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="actividad-actions">
+                <button class="btn btn--outline" (click)="abrirModalAsignar(act)">
+                  📋 Asignar a un niño
+                </button>
+                <button class="btn btn--primary" (click)="jugarConPerfil(act)">
+                  🚀 ¡A jugar!
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </section>
+  </main>
+
+  <!-- ═══════════ Modal de Asignación ═══════════ -->
+  @if (modalAsignarAbierto() && actividadSeleccionada()) {
+    <div class="modal-backdrop" (click)="cerrarModalAsignar()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-header-icon">📋</div>
+          <div>
+            <h3>Asignar Actividad</h3>
+            <p>{{ actividadSeleccionada()?.nombre }} ({{ actividadSeleccionada()?.edadMinima }}-{{ actividadSeleccionada()?.edadMaxima }} años)</p>
+          </div>
+          <button class="modal-close" (click)="cerrarModalAsignar()">✕</button>
+        </div>
+
+        <form [formGroup]="formAsignar" (ngSubmit)="confirmarAsignacion()" class="modal-form">
+          <div class="form-group">
+            <label for="perfilId">Selecciona el infante:</label>
+            @if (perfiles().length === 0) {
+              <div class="alerta-sin-perfiles">
+                <span>⚠️ No tienes niños registrados aún.</span>
+                <a routerLink="/perfiles" class="link-crear">Registrar perfil infantil</a>
+              </div>
+            } @else {
+              <select id="perfilId" formControlName="perfilId" class="form-control">
+                @for (p of perfiles(); track p.id) {
+                  <option [value]="p.id">
+                    {{ p.nombre }} ({{ p.edad }} años{{ p.grupoGrado ? ' • ' + p.grupoGrado : '' }})
+                  </option>
+                }
+              </select>
+            }
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn--outline" (click)="cerrarModalAsignar()">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn--primary"
+              [disabled]="guardando() || perfiles().length === 0"
+            >
+              {{ guardando() ? 'Asignando...' : 'Confirmar Asignación' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+</div>

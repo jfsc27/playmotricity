@@ -14,9 +14,11 @@ import {
   formatearTiempo,
 } from '../../services/seguimiento';
 
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+
 @Component({
   selector: 'app-progreso',
-  imports: [RouterLink, DecimalPipe, DatePipe],
+  imports: [RouterLink, DecimalPipe, DatePipe, SidebarComponent],
   templateUrl: './progreso.html',
   // Reutiliza el diseño del panel principal (barra lateral, tarjetas, botones) sin duplicarlo.
   styleUrls: ['../inicio/inicio.scss', './progreso.scss'],

@@ -1,0 +1,492 @@
+.zona-juegos-layout {
+  min-height: 100dvh;
+  background: radial-gradient(circle at top left, #FFF8F0 0%, #FAF5EE 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 2rem 3rem;
+  font-family: var(--pm-font-heading);
+}
+
+/* ── Encabezado Infantil ──────────────────────────────────── */
+.zona-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 1rem 1.75rem;
+  border-radius: var(--pm-radius-full);
+  border: 2px solid var(--pm-border);
+  box-shadow: 0 8px 24px rgba(45, 42, 38, 0.05);
+}
+
+.header-kid-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kid-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pm-orange) 0%, #E8685A 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgba(242, 139, 48, 0.35);
+}
+
+.kid-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.kid-name {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--pm-text);
+  line-height: 1.2;
+}
+
+.kid-tag {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--pm-orange-dark);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-regresar-selector {
+  background: var(--pm-blue-light);
+  color: var(--pm-blue);
+  border: 2px solid var(--pm-blue);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--pm-radius-full);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.btn-salir {
+  background: #fff;
+  border: 2px solid var(--pm-border);
+  color: var(--pm-text-soft);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--pm-radius-full);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--pm-orange);
+    color: var(--pm-text);
+  }
+}
+
+/* ── Estados de carga y error ─────────────────────────────── */
+.zona-cargando, .zona-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  gap: 1rem;
+  padding: 4rem;
+  text-align: center;
+}
+
+.spinner-ludico {
+  font-size: 4rem;
+  animation: spinSlow 2s infinite ease-in-out;
+}
+
+@keyframes spinSlow {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(15deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.error-emoji {
+  font-size: 4rem;
+}
+
+/* ── Contenido Principal ──────────────────────────────────── */
+.zona-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.game-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.game-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 3.5rem;
+  padding: 2.5rem;
+  border: 3px solid rgba(242, 139, 48, 0.25);
+  box-shadow: 0 20px 50px rgba(45, 42, 38, 0.08);
+}
+
+/* ── Selector de Juegos ───────────────────────────────────── */
+.selector-juegos {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.selector-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--pm-text);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 1.25rem;
+    color: var(--pm-text-soft);
+    font-weight: 600;
+  }
+}
+
+.cards-juegos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 2rem;
+}
+
+.tarjeta-juego {
+  background: #fff;
+  border-radius: 2.8rem;
+  border: 3px solid var(--pm-border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  box-shadow: 0 12px 32px rgba(45, 42, 38, 0.06);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--pm-orange);
+    box-shadow: 0 20px 48px rgba(242, 139, 48, 0.18);
+  }
+
+  &.tarjeta-completada {
+    border-color: var(--pm-green);
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%);
+  }
+}
+
+.tarjeta-visual {
+  position: relative;
+}
+
+.tarjeta-emoji {
+  font-size: 4.5rem;
+  display: block;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
+}
+
+.badge-completado {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pm-green);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pm-radius-full);
+  white-space: nowrap;
+}
+
+.tarjeta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tarjeta-categoria {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pm-orange);
+}
+
+.tarjeta-titulo {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--pm-text);
+  line-height: 1.25;
+}
+
+.tarjeta-desc {
+  font-size: 0.95rem;
+  color: var(--pm-text-soft);
+  font-weight: 600;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.btn-jugar-tarjeta {
+  width: 100%;
+  min-height: 60px;
+  background: linear-gradient(135deg, var(--pm-orange) 0%, #E8685A 100%);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(242, 139, 48, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-top: auto;
+
+  &:hover, &:active {
+    transform: scale(1.05);
+  }
+}
+
+.sin-juegos-card {
+  background: #fff;
+  border-radius: 3rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  border: 3px dashed var(--pm-border-strong);
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+
+  .sin-juegos-emoji { font-size: 4.5rem; }
+  h3 { font-size: 1.75rem; font-weight: 900; color: var(--pm-text); }
+  p { font-size: 1.1rem; color: var(--pm-text-soft); }
+}
+
+.btn-asignar-ahora {
+  background: var(--pm-orange);
+  color: #fff;
+  padding: 0.9rem 2rem;
+  border-radius: var(--pm-radius-full);
+  font-size: 1.1rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(242, 139, 48, 0.3);
+}
+
+/* ── Celebración / Overlay ────────────────────────────────── */
+.celebracion-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 42, 38, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.celebracion-dialog {
+  background: #fff;
+  border-radius: 3.5rem;
+  width: 100%;
+  max-width: 550px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  animation: popDialog 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes popDialog {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.estrella-gigante {
+  font-size: 5rem;
+  animation: spinStar 1.5s infinite ease-in-out;
+}
+
+@keyframes spinStar {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(15deg); }
+}
+
+.celebracion-titulo {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--pm-text);
+  letter-spacing: -0.02em;
+}
+
+.celebracion-subtitulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--pm-text-soft);
+}
+
+.metricas-resultado {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.metrica-item {
+  background: var(--pm-surface);
+  border: 2px solid var(--pm-border);
+  border-radius: 1.5rem;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.metrica-valor {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--pm-orange);
+}
+
+.metrica-etiqueta {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--pm-text-soft);
+  text-transform: uppercase;
+}
+
+.sync-status {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.sync-saving { color: var(--pm-text-soft); }
+.sync-success { color: var(--pm-green-dark); }
+.sync-error { color: var(--pm-danger); }
+
+.sync-retry-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-reintentar {
+  background: var(--pm-orange);
+  color: #fff;
+  border: none;
+  border-radius: var(--pm-radius-full);
+  padding: 0.35rem 0.85rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.celebracion-actions {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.btn-volver-selector, .btn-ver-progreso {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 2rem;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.04);
+  }
+}
+
+.btn-volver-selector {
+  background: var(--pm-surface);
+  color: var(--pm-text);
+  border: 2px solid var(--pm-border);
+}
+
+.btn-ver-progreso {
+  background: var(--pm-green);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(76, 175, 125, 0.35);
+}
+
+/* Partículas CSS de confeti decorativo */
+.confeti-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confeti {
+  position: absolute;
+  width: 14px;
+  height: 24px;
+  opacity: 0.8;
+  animation: caer 3s infinite linear;
+}
+
+.c1 { background: #F87171; left: 15%; animation-delay: 0s; }
+.c2 { background: #60A5FA; left: 35%; animation-delay: 0.8s; }
+.c3 { background: #FCD34D; left: 55%; animation-delay: 0.4s; }
+.c4 { background: #4ADE80; left: 75%; animation-delay: 1.2s; }
+.c5 { background: #A78BFA; left: 88%; animation-delay: 0.2s; }
+
+@keyframes caer {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}

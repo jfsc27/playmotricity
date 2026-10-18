@@ -1,0 +1,236 @@
+<div class="zona-juegos-layout">
+
+  <!-- ═══════════ Barra Superior Lúdica para Niños ═══════════ -->
+  <header class="zona-header">
+    <div class="header-kid-info">
+      <div class="kid-avatar">
+        {{ perfil()?.nombre?.charAt(0) || '🧒' }}
+      </div>
+      <div class="kid-meta">
+        <h1 class="kid-name">{{ perfil()?.nombre }}</h1>
+        <span class="kid-tag">{{ perfil()?.edad }} años • Zona Infantil</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      @if (asignacionActual()) {
+        <button class="btn-regresar-selector" (click)="volverASelector()">
+          ⬅️ Elegir otro juego
+        </button>
+      }
+      <button class="btn-salir" routerLink="/actividades">
+        🏠 Salir al panel
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════ Estado de Carga / Error ═══════════ -->
+  @if (cargando()) {
+    <div class="zona-cargando">
+      <div class="spinner-ludico">🎮</div>
+      <p>Cargando la magia de los juegos...</p>
+    </div>
+  } @else if (error()) {
+    <div class="zona-error">
+      <span class="error-emoji">😕</span>
+      <p>{{ error() }}</p>
+      <button class="btn-primary" routerLink="/actividades">Volver al catálogo</button>
+    </div>
+  } @else {
+
+    <!-- ═══════════ Vista Activa: Minijuego o Selector ═══════════ -->
+    <main class="zona-content">
+
+      <!-- CASO A: Minijuego en Ejecución -->
+      @if (asignacionActual()) {
+        <div class="game-wrapper">
+          <div class="game-card">
+
+            @switch (tipoJuego(asignacionActual()!)) {
+              @case ('ALIMENTA_MONSTRUO') {
+                <app-alimenta-monstruo
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('CONECTA_PUNTOS') {
+                <app-conecta-puntos
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('SALTA_CANGURO') {
+                <app-salta-canguro
+                  [asignacion]="asignacionActual()!"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('EQUILIBRIO_FLAMENCO') {
+                <app-equilibrio-flamenco
+                  [asignacion]="asignacionActual()!"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('CARRERA_OBSTACULOS') {
+                <app-carrera-obstaculos
+                  [asignacion]="asignacionActual()!"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('LANZA_ATRAPA') {
+                <app-lanza-atrapa
+                  [asignacion]="asignacionActual()!"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('ARRASTRA_COLORES') {
+                <app-arrastra-colores
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('CLASIFICA_FORMAS') {
+                <app-clasifica-formas
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('CARRERA_TIEMPO') {
+                <app-carrera-tiempo
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('TRAZO_MAGICO') {
+                <app-trazo-magico
+                  [asignacionId]="asignacionActual()!.id"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @case ('RETO_MOTRIZ') {
+                <app-reto-motriz
+                  [asignacion]="asignacionActual()!"
+                  (completado)="onJuegoCompletado($event)"
+                />
+              }
+              @default {
+                <div class="zona-error">
+                  <span class="error-emoji">🧩</span>
+                  <p>Esta actividad aún no tiene un componente de juego asociado.</p>
+                  <button class="btn-primary" (click)="volverASelector()">Elegir otra actividad</button>
+                </div>
+              }
+            }
+
+          </div>
+        </div>
+      }
+
+      <!-- CASO B: Selector Lúdico de Juegos Asignados -->
+      @else {
+        <section class="selector-juegos">
+          <div class="selector-header">
+            <h2>¡Hola, {{ perfil()?.nombre?.split(' ')[0] }}!</h2>
+            <p>Elige la aventura que quieres jugar hoy:</p>
+          </div>
+
+          @if (asignaciones().length === 0) {
+            <div class="sin-juegos-card">
+              <span class="sin-juegos-emoji">🎈</span>
+              <h3>Aún no tienes actividades asignadas</h3>
+              <p>Pídele a tu docente o acudiente que te asigne divertidos juegos desde el catálogo.</p>
+              <button class="btn-asignar-ahora" routerLink="/actividades">
+                Ir al catálogo de actividades
+              </button>
+            </div>
+          } @else {
+            <div class="cards-juegos-grid">
+              @for (asig of asignaciones(); track asig.id) {
+                <div class="tarjeta-juego" [class.tarjeta-completada]="asig.estado === 'COMPLETADA'">
+                  <div class="tarjeta-visual">
+                    <span class="tarjeta-emoji">{{ actividadService.iconoTipo(asig.tipoActividad) }}</span>
+                    @if (asig.estado === 'COMPLETADA') {
+                      <span class="badge-completado">✅ ¡Completado!</span>
+                    }
+                  </div>
+
+                  <div class="tarjeta-info">
+                    <span class="tarjeta-categoria">{{ actividadService.etiquetaTipo(asig.tipoActividad) }}</span>
+                    <h3 class="tarjeta-titulo">{{ asig.actividadNombre }}</h3>
+                    <p class="tarjeta-desc">{{ asig.instrucciones }}</p>
+                  </div>
+
+                  <button class="btn-jugar-tarjeta" (click)="seleccionarJuego(asig)">
+                    <span>{{ asig.estado === 'COMPLETADA' ? 'Jugar de nuevo 🔄' : '¡JUGAR AHORA! 🚀' }}</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
+    </main>
+  }
+
+  <!-- ═══════════ Pantalla de Celebración / Resultados ═══════════ -->
+  @if (juegoTerminado()) {
+    <div class="celebracion-overlay">
+      <!-- Partículas de confeti simuladas en CSS -->
+      <div class="confeti-container">
+        <div class="confeti c1"></div>
+        <div class="confeti c2"></div>
+        <div class="confeti c3"></div>
+        <div class="confeti c4"></div>
+        <div class="confeti c5"></div>
+      </div>
+
+      <div class="celebracion-dialog">
+        <div class="estrella-gigante">🌟</div>
+        <h2 class="celebracion-titulo">¡FELICITACIONES!</h2>
+        <p class="celebracion-subtitulo">Completaste la actividad con éxito</p>
+
+        <!-- Métricas del intento -->
+        <div class="metricas-resultado">
+          <div class="metrica-item">
+            <span class="metrica-valor">{{ resultadoFinal()?.puntaje }}</span>
+            <span class="metrica-etiqueta">Puntaje</span>
+          </div>
+          <div class="metrica-item">
+            <span class="metrica-valor">{{ resultadoFinal()?.precision }}%</span>
+            <span class="metrica-etiqueta">Precisión</span>
+          </div>
+          <div class="metrica-item">
+            <span class="metrica-valor">{{ resultadoFinal()?.tiempoSeg }} s</span>
+            <span class="metrica-etiqueta">Tiempo</span>
+          </div>
+        </div>
+
+        <!-- Estado de sincronización con Neon PostgreSQL -->
+        <div class="sync-status">
+          @if (guardandoResultado()) {
+            <span class="sync-saving">⏳ Guardando en la base de datos...</span>
+          } @else if (resultadoGuardado()) {
+            <span class="sync-success">✨ ¡Progreso registrado con éxito en Neon DB!</span>
+          } @else {
+            <div class="sync-retry-block">
+              <span class="sync-error">⚠️ No se pudo guardar la conexión.</span>
+              <button class="btn-reintentar" (click)="reintentarGuardado()">Reintentar</button>
+            </div>
+          }
+        </div>
+
+        <!-- Acciones finales -->
+        <div class="celebracion-actions">
+          <button class="btn-volver-selector" (click)="volverASelector()">
+            🎮 Elegir otro juego
+          </button>
+          <button class="btn-ver-progreso" (click)="irAReportes()">
+            📊 Ver mi progreso
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

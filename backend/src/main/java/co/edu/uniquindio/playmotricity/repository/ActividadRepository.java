@@ -11,4 +11,8 @@ public interface ActividadRepository
         extends JpaRepository<Actividad, UUID> {
 
     List<Actividad> findByTipoActividad(TipoActividad tipoActividad);
+
+    List<Actividad> findByEdadMinimaLessThanEqualAndEdadMaximaGreaterThanEqual(int edad, int edad2);
+
+    List<Actividad> findAllByOrderByEdadMinimaAscNombreAsc();
 }

@@ -2,21 +2,25 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { PerfilService } from '../../services/perfil';
+import { ActividadService } from '../../services/actividad';
 import { InfoRol } from '../../components/info-rol/info-rol';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-inicio',
-  imports: [RouterLink, InfoRol],
+  imports: [RouterLink, InfoRol, SidebarComponent],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
 export class Inicio implements OnInit {
   protected readonly auth = inject(Auth);
   private readonly perfilService = inject(PerfilService);
+  private readonly actividadService = inject(ActividadService);
   private readonly router = inject(Router);
 
   protected readonly sidebarCollapsed = signal(false);
   protected readonly conteoPerfiles = signal<number>(0);
+  protected readonly conteoActividades = signal<number>(0);
 
   protected readonly esDocente = computed(
     () => this.auth.usuario()?.rol === 'DOCENTE'
@@ -47,6 +51,11 @@ export class Inicio implements OnInit {
     this.perfilService.listar().subscribe({
       next: (perfiles) => this.conteoPerfiles.set(perfiles.length),
       error: () => this.conteoPerfiles.set(0),
+    });
+
+    this.actividadService.listarActividades().subscribe({
+      next: (acts) => this.conteoActividades.set(acts.length),
+      error: () => this.conteoActividades.set(0),
     });
   }
 

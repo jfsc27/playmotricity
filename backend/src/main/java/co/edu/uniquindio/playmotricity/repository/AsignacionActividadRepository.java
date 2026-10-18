@@ -12,8 +12,14 @@ public interface AsignacionActividadRepository
 
     List<AsignacionActividad> findByPerfilId(UUID perfilId);
 
+    List<AsignacionActividad> findByPerfilIdOrderByFechaAsignacionDesc(UUID perfilId);
+
     List<AsignacionActividad> findByPerfilIdAndEstado(
             UUID perfilId,
             EstadoAsignacion estado
     );
+
+    List<AsignacionActividad> findByPerfilIdAndActividadId(UUID perfilId, UUID actividadId);
+
+    boolean existsByPerfilIdAndActividadIdAndEstadoNot(UUID perfilId, UUID actividadId, EstadoAsignacion estado);
 }

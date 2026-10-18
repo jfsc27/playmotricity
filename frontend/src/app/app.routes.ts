@@ -30,6 +30,30 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/progreso/progreso').then((m) => m.Progreso),
   },
   {
+    path: 'actividades',
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
+    loadComponent: () => import('./pages/actividades/actividades').then((m) => m.Actividades),
+  },
+  {
+    path: 'zona-juegos/:perfilId',
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
+    loadComponent: () => import('./pages/zona-juegos/zona-juegos').then((m) => m.ZonaJuegos),
+  },
+  {
+    path: 'zona-juegos/:perfilId/:asignacionId',
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
+    loadComponent: () => import('./pages/zona-juegos/zona-juegos').then((m) => m.ZonaJuegos),
+  },
+  {
+    path: 'perfil',
+    canActivate: [authGuard, rolGuard],
+    data: { roles: ['DOCENTE', 'PADRE'] },
+    loadComponent: () => import('./pages/perfil/perfil').then((m) => m.MiPerfil),
+  },
+  {
     path: 'acceso-denegado',
     canActivate: [authGuard],
     loadComponent: () =>
