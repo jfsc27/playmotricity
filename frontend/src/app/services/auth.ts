@@ -47,7 +47,7 @@ const USER_KEY = 'playmotricity_usuario';
 export class Auth {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = '/api/auth';
 
   private readonly _token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private readonly _usuario = signal<Usuario | null>(this.leerUsuario());

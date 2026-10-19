@@ -63,7 +63,7 @@ export interface ReporteProgreso {
 })
 export class SeguimientoService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/seguimiento/perfiles';
+  private readonly apiUrl = '/api/seguimiento/perfiles';
 
   actividadesCompletadas(perfilId: string): Observable<ResultadoDetalle[]> {
     return this.http.get<ResultadoDetalle[]>(`${this.apiUrl}/${perfilId}/actividades-completadas`);

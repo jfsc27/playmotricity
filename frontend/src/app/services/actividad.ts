@@ -65,8 +65,8 @@ export interface ResultadoActividadResponse {
 })
 export class ActividadService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/actividades';
-  private readonly asignacionesUrl = 'http://localhost:8080/api/asignaciones';
+  private readonly apiUrl = '/api/actividades';
+  private readonly asignacionesUrl = '/api/asignaciones';
 
   /** Lista actividades disponibles, con filtros opcionales de edad y tipo */
   listarActividades(edad?: number, tipo?: TipoActividad): Observable<Actividad[]> {

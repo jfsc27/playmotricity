@@ -39,7 +39,7 @@ export interface InfoReglaEdad {
 })
 export class PerfilService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/perfiles';
+  private readonly apiUrl = '/api/perfiles';
 
   /**
    * Obtiene todos los perfiles infantiles vinculados al usuario autenticado.

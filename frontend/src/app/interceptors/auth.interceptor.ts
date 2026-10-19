@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Auth } from '../services/auth';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = '/api';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(Auth);

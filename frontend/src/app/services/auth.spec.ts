@@ -18,7 +18,7 @@ describe('Auth', () => {
 
   it('guarda la sesion tras un login exitoso', () => {
     auth.login('ana@x.com', 'clave12345').subscribe();
-    http.expectOne('http://localhost:8080/api/auth/login').flush({
+    http.expectOne('/api/auth/login').flush({
       token: 'tok', tipo: 'Bearer', expiraEnMs: 1000,
       usuario: { id: '1', nombre: 'Ana', correo: 'ana@x.com', rol: 'DOCENTE' },
     });
@@ -29,7 +29,7 @@ describe('Auth', () => {
 
   it('limpia la sesion al hacer logout', () => {
     auth.login('ana@x.com', 'x').subscribe();
-    http.expectOne('http://localhost:8080/api/auth/login').flush({
+    http.expectOne('/api/auth/login').flush({
       token: 'tok', tipo: 'Bearer', expiraEnMs: 1000,
       usuario: { id: '1', nombre: 'Ana', correo: 'ana@x.com', rol: 'DOCENTE' },
     });
@@ -41,7 +41,7 @@ describe('Auth', () => {
   it('tieneRol refleja el rol del usuario en sesion', () => {
     expect(auth.tieneRol('DOCENTE')).toBe(false);
     auth.login('ana@x.com', 'x').subscribe();
-    http.expectOne('http://localhost:8080/api/auth/login').flush({
+    http.expectOne('/api/auth/login').flush({
       token: 'tok', tipo: 'Bearer', expiraEnMs: 1000,
       usuario: { id: '1', nombre: 'Ana', correo: 'ana@x.com', rol: 'PADRE' },
     });

@@ -24,7 +24,7 @@ export interface ResumenPadre {
 })
 export class RolService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = '/api';
 
   resumenDocente(): Observable<ResumenDocente> {
     return this.http.get<ResumenDocente>(`${this.apiUrl}/docente/resumen`);

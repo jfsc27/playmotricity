@@ -609,7 +609,7 @@ export class MiPerfil implements OnInit {
 
     // Cargar resumen según el rol
     if (this.esDocente()) {
-      this.http.get<DatosDocente>('http://localhost:8080/api/docente/resumen').subscribe({
+      this.http.get<DatosDocente>('/api/docente/resumen').subscribe({
         next: (res) => {
           this.datosDocente.set(res);
           this.cargando.set(false);
@@ -617,7 +617,7 @@ export class MiPerfil implements OnInit {
         error: () => this.cargando.set(false),
       });
     } else {
-      this.http.get<DatosPadre>('http://localhost:8080/api/padre/resumen').subscribe({
+      this.http.get<DatosPadre>('/api/padre/resumen').subscribe({
         next: (res) => {
           this.datosPadre.set(res);
           this.cargando.set(false);

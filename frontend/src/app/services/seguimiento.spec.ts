@@ -6,7 +6,7 @@ import { SeguimientoService, formatearTiempo } from './seguimiento';
 describe('SeguimientoService', () => {
   let service: SeguimientoService;
   let http: HttpTestingController;
-  const base = 'http://localhost:8080/api/seguimiento/perfiles/p1';
+  const base = '/api/seguimiento/perfiles/p1';
 
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
