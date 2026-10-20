@@ -10,6 +10,6 @@ public class HealthController {
 
     @GetMapping("/health")
     public String health() {
-        return "PlayMotricity backend actualizado automaticamente con CI/CD";
+        return "PlayMotricity funcionando con prueba2";
     }
 }
