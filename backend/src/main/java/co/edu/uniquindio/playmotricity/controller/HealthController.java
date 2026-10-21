@@ -10,6 +10,6 @@ public class HealthController {
 
     @GetMapping("/health")
     public String health() {
-        return "PlayMotricity funcionando con prueba2";
+        return "PlayMotricity funcionando con prueba definitiva";
     }
 }
